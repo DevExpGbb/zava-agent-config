@@ -21,9 +21,9 @@
       "source": "./plugins/code-kit"
     },
     {
-      "name": "ship-kit",
-      "description": "BUILD/RELEASE stage — CI/CD golden paths instructions (reusable workflows, deploy gates, environment promotion).",
-      "source": "./plugins/ship-kit"
+      "name": "release-kit",
+      "description": "RELEASE stage — CI/CD golden paths instructions (reusable workflows, deploy gates, environment promotion).",
+      "source": "./plugins/release-kit"
     },
     {
       "name": "operate-kit",

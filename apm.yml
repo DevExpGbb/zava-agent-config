@@ -1,8 +1,8 @@
 name: zava-agent-config
-version: 2.0.0
+version: 3.0.0
 description: >-
   Zava Engineering — central agent configuration marketplace. Five SDLC-aligned
-  plugins (secure-baseline + ideate/code/ship/operate kits) that every Zava
+  plugins (secure-baseline + ideate/code/release/operate kits) that every Zava
   service repo composes via apm.yml. Reference for the joint Microsoft + GitHub
   Agentic SDLC Demo Platform.
 author: Zava Engineering
@@ -47,9 +47,9 @@ marketplace:
     - name: code-kit
       source: ./plugins/code-kit
       description: CODE stage — panel-review skill plus architect persona for design-intent enforcement during authoring and PR review.
-    - name: ship-kit
-      source: ./plugins/ship-kit
-      description: BUILD/RELEASE stage — CI/CD golden paths instructions (reusable workflows, deploy gates, environment promotion).
+    - name: release-kit
+      source: ./plugins/release-kit
+      description: RELEASE stage — CI/CD golden paths instructions (reusable workflows, deploy gates, environment promotion).
     - name: operate-kit
       source: ./plugins/operate-kit
       description: OPERATE stage — incident-to-PR skill (Azure SRE Agent finding → scoped remediation pull request).
