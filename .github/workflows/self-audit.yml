@@ -29,8 +29,8 @@ jobs:
 
       - name: Install APM CLI
         run: |
-          curl -sSL https://raw.githubusercontent.com/danielmeppiel/awd-cli/main/install.sh | bash
-          echo "$HOME/.apm/bin" >> "$GITHUB_PATH"
+          curl -sSL https://aka.ms/apm-unix | APM_INSTALL_DIR="$HOME/.local/bin" sh
+          echo "$HOME/.local/bin" >> "$GITHUB_PATH"
 
       - name: Verify APM CLI
         run: apm --version
