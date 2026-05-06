@@ -7,11 +7,6 @@ on:
     branches: [main]
   workflow_call:
     inputs:
-      policy-path:
-        description: "Path to apm-policy.yaml. Defaults to repo root."
-        required: false
-        type: string
-        default: "./apm-policy.yaml"
       fail-on-warn:
         description: "Treat WARNING severity as failure (recommended for prod services)."
         required: false
@@ -20,11 +15,11 @@ on:
 
 permissions:
   contents: read
-  pull-requests: write   # for posting the SARIF summary as a PR comment
+  pull-requests: write
 
 jobs:
   audit:
-    name: APM audit (policy + drift + supply-chain)
+    name: APM audit (drift + supply-chain)
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -38,27 +33,29 @@ jobs:
       - name: Verify APM CLI
         run: apm --version
 
+      # Detect whether this repo declares APM deps. If not (e.g., zava-agent-config
+      # itself), audit is a no-op success and we skip the rest.
+      - name: Detect APM dependencies
+        id: detect
+        run: |
+          if [ -f apm.yml ] && grep -qE '^\s*apm:\s*$' apm.yml && \
+             ! grep -qE '^\s*apm:\s*\[\s*\]\s*$' apm.yml; then
+            echo "has_deps=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "has_deps=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::No APM dependencies declared — audit is a no-op."
+          fi
+
       - name: APM audit (CI mode)
+        if: steps.detect.outputs.has_deps == 'true'
         id: audit
         run: |
-          POLICY_PATH="${{ inputs.policy-path || './apm-policy.yaml' }}"
-          echo "::group::Running apm audit --ci --policy ${POLICY_PATH}"
-          apm audit \
-            --ci \
-            --policy "${POLICY_PATH}" \
-            -f sarif \
-            -o apm-audit.sarif
+          echo "::group::Running apm audit --ci"
+          apm audit --ci -f sarif -o apm-audit.sarif
           echo "::endgroup::"
 
-      - name: Upload SARIF to GitHub Code Scanning
-        if: always()
-        uses: github/codeql-action/upload-sarif@v3
-        with:
-          sarif_file: apm-audit.sarif
-          category: apm-audit
-
       - name: Upload audit report as artifact
-        if: always()
+        if: always() && hashFiles('apm-audit.sarif') != ''
         uses: actions/upload-artifact@v4
         with:
           name: apm-audit-report
@@ -68,8 +65,14 @@ jobs:
       - name: Summarize on PR
         if: always() && github.event_name == 'pull_request'
         run: |
-          echo "## 🛡️ APM Audit" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "Policy: \`${{ inputs.policy-path || './apm-policy.yaml' }}\`" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "See **Code scanning alerts** for details. SARIF artifact attached." >> $GITHUB_STEP_SUMMARY
+          {
+            echo "## 🛡️ APM Audit"
+            echo ""
+            if [ "${{ steps.detect.outputs.has_deps }}" = "true" ]; then
+              echo "Ran \`apm audit --ci\` against project policy (org: \`DevExpGbb/.github/apm-policy.yml\`)."
+              echo ""
+              echo "SARIF report uploaded as artifact: **apm-audit-report**."
+            else
+              echo "No APM dependencies declared in \`apm.yml\` — audit skipped."
+            fi
+          } >> "$GITHUB_STEP_SUMMARY"
