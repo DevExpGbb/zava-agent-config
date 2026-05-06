@@ -1,0 +1,18 @@
+lockfile_version: '1'
+generated_at: '2026-05-06T10:36:40.641745+00:00'
+dependencies: []
+local_deployed_files:
+- .agents/skills/incident-to-pr
+- .agents/skills/meeting-to-issue
+- .agents/skills/panel-review
+- .github/agents/architect.agent.md
+- .github/agents/security.agent.md
+- .github/instructions/ci-cd-golden-paths.instructions.md
+- .github/instructions/docs-style-guide.instructions.md
+- .github/instructions/secure-coding-base.instructions.md
+local_deployed_file_hashes:
+  .github/agents/architect.agent.md: sha256:de74154b914769a13b4dc594f998db0e745280f8890af1ca526f10b10d0ecc5a
+  .github/agents/security.agent.md: sha256:8092bef9ff98c66251754d33e9b241f4f25293578b31e258cee88124c80590c1
+  .github/instructions/ci-cd-golden-paths.instructions.md: sha256:2fbe12eb300b75f8bc09ddb461c252a48c5b355c4aaf44f689d3b56b2086bb20
+  .github/instructions/docs-style-guide.instructions.md: sha256:cad1b1161ef8d53e08038302b6c8cd14dbc03f75fa7ec267edf3d1f07824a739
+  .github/instructions/secure-coding-base.instructions.md: sha256:f0a32226b87082a4e4cad08a070e55c177e23e0ef728329973634c84c3a81d14
