@@ -15,3 +15,9 @@ dependencies:
   apm: []
   mcp: []
 includes: auto
+
+# Org policy DevExpGbb/.github/apm-policy.yml mandates source_attribution.
+# Library repo complies even though it has no compilation target itself —
+# eat-your-own-dogfood: every Zava repo, library or consumer, follows the rule.
+compilation:
+  source_attribution: true
