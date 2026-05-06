@@ -1,0 +1,10 @@
+{
+  "name": "review-kit",
+  "version": "5.0.0",
+  "description": "REVIEW phase of the Zava Agentic SDLC ribbon. Pre-PR self-review skills — multi-perspective panel review (architect + security) of staged changes, run by the author before push to surface design and security gaps before the human PR reviewer pays the tax.",
+  "author": { "name": "Zava Engineering" },
+  "license": "MIT",
+  "repository": "https://github.com/DevExpGbb/zava-agent-config",
+  "homepage": "https://github.com/DevExpGbb/zava-agent-config/tree/main/plugins/review-kit",
+  "keywords": ["agentic-sdlc", "apm", "zava", "review", "code-review", "pr-review"]
+}

@@ -1,10 +1,10 @@
 name: zava-agent-config
-version: 4.0.0
+version: 5.0.0
 description: >-
-  Zava Engineering — central agent configuration marketplace. Five SDLC-aligned
-  plugins (secure-baseline + ideate/code/release/operate kits) that every Zava
-  service repo composes via apm.yml. Reference for the joint Microsoft + GitHub
-  Agentic SDLC Demo Platform.
+  Zava Engineering — central agent configuration marketplace. Six SDLC-aligned
+  plugins (secure-baseline + ideate/code/review/release/operate kits) that every
+  Zava service repo composes via apm.yml. Reference for the joint Microsoft +
+  GitHub Agentic SDLC Demo Platform.
 author: Zava Engineering
 license: MIT
 keywords:
@@ -46,7 +46,10 @@ marketplace:
       description: IDEATE stage — meeting-to-issue skill (transcript / voice / ticket → well-formed GitHub issue).
     - name: code-kit
       source: ./plugins/code-kit
-      description: CODE stage — panel-review skill plus architect persona for design-intent enforcement during authoring and PR review.
+      description: CODE stage — architect persona for design-intent guidance during local authoring.
+    - name: review-kit
+      source: ./plugins/review-kit
+      description: REVIEW stage — pre-PR self-review skills. Multi-perspective panel review (architect + security) of staged changes, run by the author before push.
     - name: release-kit
       source: ./plugins/release-kit
       description: RELEASE stage — CI/CD golden paths instructions (reusable workflows, deploy gates, environment promotion).

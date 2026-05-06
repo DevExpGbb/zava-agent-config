@@ -4,15 +4,16 @@
 
 > Part of the joint Microsoft + GitHub Agentic SDLC Demo Platform. See [`PLATFORM.md`](https://github.com/DevExpGbb/agentic-sdlc-ref/blob/main/PLATFORM.md) for the full reference and [`delivery/lloyds-ph1-delivery-plan.md`](https://github.com/DevExpGbb/agentic-sdlc-ref/blob/main/delivery/lloyds-ph1-delivery-plan.md) for the customer-facing workshop slice.
 
-## What's in here (v4.0.0)
+## What's in here (v5.0.0)
 
-A 5-plugin APM marketplace aligned to the [PLATFORM.md §6.1](https://github.com/DevExpGbb/agentic-sdlc-ref/blob/main/PLATFORM.md#61-layer-a--the-sdlc-ribbon) SDLC ribbon:
+A 6-plugin APM marketplace aligned to the [PLATFORM.md §6.1](https://github.com/DevExpGbb/agentic-sdlc-ref/blob/main/PLATFORM.md#61-layer-a--the-sdlc-ribbon) SDLC ribbon:
 
 | Plugin | SDLC stage | Source |
 |---|---|---|
 | [`secure-baseline`](plugins/secure-baseline/) | cross-cutting | secure-coding + docs-style instructions; security persona |
 | [`ideate-kit`](plugins/ideate-kit/) | IDEATE | `meeting-to-issue` skill |
-| [`code-kit`](plugins/code-kit/) | CODE | `panel-review` skill; architect persona |
+| [`code-kit`](plugins/code-kit/) | CODE | architect persona (design-intent guidance during authoring) |
+| [`review-kit`](plugins/review-kit/) | REVIEW | `panel-review` skill (pre-PR self-review by author) |
 | [`release-kit`](plugins/release-kit/) | RELEASE | `ci-cd-golden-paths` instructions |
 | [`operate-kit`](plugins/operate-kit/) | OPERATE | `incident-to-pr` skill |
 
@@ -24,9 +25,10 @@ See [`CATALOG.md`](CATALOG.md) for the full index, migration table from v1.0.x, 
 # zava-storefront/apm.yml — pick only the kits you need
 dependencies:
   apm:
-    - DevExpGbb/zava-agent-config/plugins/secure-baseline#v4.0.0
-    - DevExpGbb/zava-agent-config/plugins/code-kit#v4.0.0
-    - DevExpGbb/zava-agent-config/plugins/release-kit#v4.0.0
+    - DevExpGbb/zava-agent-config/plugins/secure-baseline#v5.0.0
+    - DevExpGbb/zava-agent-config/plugins/code-kit#v5.0.0
+    - DevExpGbb/zava-agent-config/plugins/review-kit#v5.0.0
+    - DevExpGbb/zava-agent-config/plugins/release-kit#v5.0.0
 ```
 
 After `apm install`, the service inherits the selected plugins' skills, instructions, and personas. Layered service-local instructions in the consumer's `.apm/` always win over inherited ones.

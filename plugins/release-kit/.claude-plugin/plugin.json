@@ -1,6 +1,6 @@
 {
   "name": "release-kit",
-  "version": "4.0.0",
+  "version": "5.0.0",
   "description": "RELEASE phase of the Zava Agentic SDLC ribbon. CI/CD golden paths instructions — reusable workflows, deployment gates, environment promotion conventions.",
   "author": { "name": "Zava Engineering" },
   "license": "MIT",

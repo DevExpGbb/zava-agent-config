@@ -17,8 +17,13 @@
     },
     {
       "name": "code-kit",
-      "description": "CODE stage — panel-review skill plus architect persona for design-intent enforcement during authoring and PR review.",
+      "description": "CODE stage — architect persona for design-intent guidance during local authoring.",
       "source": "./plugins/code-kit"
+    },
+    {
+      "name": "review-kit",
+      "description": "REVIEW stage — pre-PR self-review skills. Multi-perspective panel review (architect + security) of staged changes, run by the author before push.",
+      "source": "./plugins/review-kit"
     },
     {
       "name": "release-kit",
