@@ -1,10 +1,19 @@
 {
   "name": "secure-baseline",
-  "version": "5.0.0",
+  "version": "5.0.1",
   "description": "Cross-cutting baseline for every Zava service: secure-coding instructions, docs style guide, and the security reviewer persona. Pinned by every service repo regardless of SDLC stage.",
-  "author": { "name": "Zava Engineering" },
+  "author": {
+    "name": "Zava Engineering"
+  },
   "license": "MIT",
   "repository": "https://github.com/DevExpGbb/zava-agent-config",
   "homepage": "https://github.com/DevExpGbb/zava-agent-config/tree/main/plugins/secure-baseline",
-  "keywords": ["agentic-sdlc", "apm", "zava", "cross-cutting", "security", "docs"]
+  "keywords": [
+    "agentic-sdlc",
+    "apm",
+    "zava",
+    "cross-cutting",
+    "security",
+    "docs"
+  ]
 }

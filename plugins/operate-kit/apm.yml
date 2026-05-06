@@ -1,0 +1,18 @@
+# Per-plugin apm.yml — enables `apm pack --offline --archive` from this
+# directory to produce a Claude Code plugin tarball for GitHub Releases
+# distribution. Source of truth for runtime metadata is
+# .claude-plugin/plugin.json; keep `version` in sync with the top-level
+# marketplace (zava-agent-config v5.0.0).
+name: operate-kit
+version: 5.0.1
+description: >-
+  OPERATE phase of the Zava Agentic SDLC ribbon. Incident-to-PR skill — converts an Azure SRE Agent finding into a remediation pull request scoped to the right repo.
+author: Zava Engineering
+license: MIT
+
+dependencies:
+  apm: []
+
+# Mirror org policy compliance (DevExpGbb/.github/apm-policy.yml).
+compilation:
+  source_attribution: true

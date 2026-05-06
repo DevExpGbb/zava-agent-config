@@ -13,6 +13,12 @@ name: self-audit
 #     well-formed .claude-plugin/marketplace.json and every plugin source resolves.
 #   - We commit .claude-plugin/marketplace.json so downstream tooling and
 #     reviewers can diff it without invoking the CLI.
+#
+# v5.0.1+: CLI install via microsoft/apm-action@v1 (setup-only mode).
+# We still call `apm pack --offline` directly because apm-action's pack mode
+# emits a single bundle, not a marketplace.json — the publisher-side drift
+# check is unique to this repo. Also smoke-tests per-plugin pack so a tag
+# push (release.yml) is guaranteed to succeed.
 
 on:
   push:
@@ -34,10 +40,10 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Install APM CLI
-        run: |
-          curl -sSL https://aka.ms/apm-unix | APM_INSTALL_DIR="$HOME/.local/bin" sh
-          echo "$HOME/.local/bin" >> "$GITHUB_PATH"
+      - name: Setup APM CLI
+        uses: microsoft/apm-action@v1
+        with:
+          setup-only: 'true'
 
       - name: Verify APM CLI
         run: apm --version
@@ -67,6 +73,20 @@ jobs:
             exit 1
           fi
 
+      - name: Per-plugin pack smoke test (validates release.yml inputs)
+        run: |
+          echo "::group::per-plugin apm pack"
+          mkdir -p build/plugins
+          for kit_dir in plugins/*/; do
+            kit_name=$(basename "$kit_dir")
+            echo "::group::pack $kit_name"
+            ( cd "$kit_dir" && apm pack --offline --archive -o "$GITHUB_WORKSPACE/build/plugins" )
+            echo "::endgroup::"
+          done
+          echo "::endgroup::"
+          echo "Built tarballs:"
+          ls -la build/plugins/
+
       - name: Upload audit report as artifact
         if: always()
         uses: actions/upload-artifact@v4
@@ -83,6 +103,7 @@ jobs:
             echo ""
             echo "- **Lib**: \`zava-agent-config\` (marketplace)"
             echo "- **Commit**: \`${GITHUB_SHA::7}\`"
-            echo "- **Marketplace**: \`.claude-plugin/marketplace.json\` (5 plugins)"
+            echo "- **Marketplace**: \`.claude-plugin/marketplace.json\` (6 plugins)"
             echo "- **Audit report**: \`apm-audit.sarif\` (artifact)"
+            echo "- **Per-plugin pack**: smoke-tested (validates release.yml will succeed)"
           } >> "$GITHUB_STEP_SUMMARY"

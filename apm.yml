@@ -1,5 +1,5 @@
 name: zava-agent-config
-version: 5.0.0
+version: 5.0.1
 description: >-
   Zava Engineering — central agent configuration marketplace. Six SDLC-aligned
   plugins (secure-baseline + ideate/code/review/release/operate kits) that every

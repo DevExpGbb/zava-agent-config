@@ -1,0 +1,18 @@
+# Per-plugin apm.yml — enables `apm pack --offline --archive` from this
+# directory to produce a Claude Code plugin tarball for GitHub Releases
+# distribution. Source of truth for runtime metadata is
+# .claude-plugin/plugin.json; keep `version` in sync with the top-level
+# marketplace (zava-agent-config v5.0.0).
+name: ideate-kit
+version: 5.0.1
+description: >-
+  IDEATE phase of the Zava Agentic SDLC ribbon. Turns unstructured input (meeting transcripts, voice notes, customer tickets) into well-formed GitHub issues ready for planning.
+author: Zava Engineering
+license: MIT
+
+dependencies:
+  apm: []
+
+# Mirror org policy compliance (DevExpGbb/.github/apm-policy.yml).
+compilation:
+  source_attribution: true
