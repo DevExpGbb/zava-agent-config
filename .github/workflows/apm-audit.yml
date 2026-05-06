@@ -1,10 +1,20 @@
 name: apm-audit
 
+# Reusable workflow shipped by zava-agent-config for downstream APM consumers.
+#
+# This file is NOT meant to run on this repo's own push/PR — that's what
+# self-audit.yml is for (it adds the marketplace pack/drift check that's
+# unique to the publisher). This file exists purely as a `workflow_call`
+# artifact that consumers pin and call:
+#
+#   jobs:
+#     audit:
+#       uses: DevExpGbb/zava-agent-config/.github/workflows/apm-audit.yml@v3.0.0
+#
+# Pinning the workflow to a tag means the consumer's audit step is part of
+# the supply chain they audit — no implicit "latest" reusable workflow.
+
 on:
-  pull_request:
-    branches: [main]
-  push:
-    branches: [main]
   workflow_call:
     inputs:
       fail-on-warn:
