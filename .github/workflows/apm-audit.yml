@@ -1,0 +1,75 @@
+name: apm-audit
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+  workflow_call:
+    inputs:
+      policy-path:
+        description: "Path to apm-policy.yaml. Defaults to repo root."
+        required: false
+        type: string
+        default: "./apm-policy.yaml"
+      fail-on-warn:
+        description: "Treat WARNING severity as failure (recommended for prod services)."
+        required: false
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+  pull-requests: write   # for posting the SARIF summary as a PR comment
+
+jobs:
+  audit:
+    name: APM audit (policy + drift + supply-chain)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install APM CLI
+        run: |
+          curl -sSL https://aka.ms/apm-unix | APM_INSTALL_DIR="$HOME/.local/bin" sh
+          echo "$HOME/.local/bin" >> "$GITHUB_PATH"
+
+      - name: Verify APM CLI
+        run: apm --version
+
+      - name: APM audit (CI mode)
+        id: audit
+        run: |
+          POLICY_PATH="${{ inputs.policy-path || './apm-policy.yaml' }}"
+          echo "::group::Running apm audit --ci --policy ${POLICY_PATH}"
+          apm audit \
+            --ci \
+            --policy "${POLICY_PATH}" \
+            -f sarif \
+            -o apm-audit.sarif
+          echo "::endgroup::"
+
+      - name: Upload SARIF to GitHub Code Scanning
+        if: always()
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: apm-audit.sarif
+          category: apm-audit
+
+      - name: Upload audit report as artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: apm-audit-report
+          path: apm-audit.sarif
+          retention-days: 30
+
+      - name: Summarize on PR
+        if: always() && github.event_name == 'pull_request'
+        run: |
+          echo "## 🛡️ APM Audit" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "Policy: \`${{ inputs.policy-path || './apm-policy.yaml' }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "See **Code scanning alerts** for details. SARIF artifact attached." >> $GITHUB_STEP_SUMMARY
