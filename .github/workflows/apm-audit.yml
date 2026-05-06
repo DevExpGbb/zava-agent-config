@@ -46,6 +46,10 @@ jobs:
             echo "::notice::No APM dependencies declared — audit is a no-op."
           fi
 
+      - name: APM install (populate cache for drift replay)
+        if: steps.detect.outputs.has_deps == 'true'
+        run: apm install
+
       - name: APM audit (CI mode)
         if: steps.detect.outputs.has_deps == 'true'
         id: audit
