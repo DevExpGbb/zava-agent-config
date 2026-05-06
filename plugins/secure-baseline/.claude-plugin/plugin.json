@@ -1,6 +1,6 @@
 {
   "name": "secure-baseline",
-  "version": "3.0.0",
+  "version": "4.0.0",
   "description": "Cross-cutting baseline for every Zava service: secure-coding instructions, docs style guide, and the security reviewer persona. Pinned by every service repo regardless of SDLC stage.",
   "author": { "name": "Zava Engineering" },
   "license": "MIT",

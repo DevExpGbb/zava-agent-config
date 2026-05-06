@@ -1,7 +1,7 @@
 {
   "name": "ideate-kit",
-  "version": "3.0.0",
-  "description": "IDEATE stage of the Zava Agentic SDLC ribbon. Turns unstructured input (meeting transcripts, voice notes, customer tickets) into well-formed GitHub issues ready for planning.",
+  "version": "4.0.0",
+  "description": "IDEATE phase of the Zava Agentic SDLC ribbon. Turns unstructured input (meeting transcripts, voice notes, customer tickets) into well-formed GitHub issues ready for planning.",
   "author": { "name": "Zava Engineering" },
   "license": "MIT",
   "repository": "https://github.com/DevExpGbb/zava-agent-config",

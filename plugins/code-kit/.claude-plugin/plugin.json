@@ -1,7 +1,7 @@
 {
   "name": "code-kit",
-  "version": "3.0.0",
-  "description": "CODE stage of the Zava Agentic SDLC ribbon. Multi-perspective panel-review skill plus the architect persona — used during local authoring and PR review to enforce design intent.",
+  "version": "4.0.0",
+  "description": "CODE phase of the Zava Agentic SDLC ribbon. Multi-perspective panel-review skill plus the architect persona — used during local authoring and PR review to enforce design intent.",
   "author": { "name": "Zava Engineering" },
   "license": "MIT",
   "repository": "https://github.com/DevExpGbb/zava-agent-config",

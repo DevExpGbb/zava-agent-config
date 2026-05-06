@@ -4,7 +4,7 @@
 
 > Part of the joint Microsoft + GitHub Agentic SDLC Demo Platform. See [`PLATFORM.md`](https://github.com/DevExpGbb/agentic-sdlc-ref/blob/main/PLATFORM.md) for the full reference and [`delivery/lloyds-ph1-delivery-plan.md`](https://github.com/DevExpGbb/agentic-sdlc-ref/blob/main/delivery/lloyds-ph1-delivery-plan.md) for the customer-facing workshop slice.
 
-## What's in here (v3.0.0)
+## What's in here (v4.0.0)
 
 A 5-plugin APM marketplace aligned to the [PLATFORM.md §6.1](https://github.com/DevExpGbb/agentic-sdlc-ref/blob/main/PLATFORM.md#61-layer-a--the-sdlc-ribbon) SDLC ribbon:
 
@@ -24,9 +24,9 @@ See [`CATALOG.md`](CATALOG.md) for the full index, migration table from v1.0.x, 
 # zava-storefront/apm.yml — pick only the kits you need
 dependencies:
   apm:
-    - DevExpGbb/zava-agent-config/plugins/secure-baseline#v3.0.0
-    - DevExpGbb/zava-agent-config/plugins/code-kit#v3.0.0
-    - DevExpGbb/zava-agent-config/plugins/release-kit#v3.0.0
+    - DevExpGbb/zava-agent-config/plugins/secure-baseline#v4.0.0
+    - DevExpGbb/zava-agent-config/plugins/code-kit#v4.0.0
+    - DevExpGbb/zava-agent-config/plugins/release-kit#v4.0.0
 ```
 
 After `apm install`, the service inherits the selected plugins' skills, instructions, and personas. Layered service-local instructions in the consumer's `.apm/` always win over inherited ones.
