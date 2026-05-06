@@ -1,0 +1,61 @@
+name: "Zava Engineering APM Policy"
+version: "1.0.0"
+description: >-
+  Allowlist policy enforced by `apm audit --ci --policy ./apm-policy.yaml`
+  on every Zava service repo that pins zava-agent-config. Block-mode in
+  CI; warn-mode locally.
+
+# Block in CI, warn locally. CI flips to block via `apm audit --ci`.
+enforcement: block
+
+# 1. APM packages — allow only from Zava and trusted partners
+dependencies:
+  allow:
+    - "zava-engineering/*"
+    - "DevExpGbb/*"             # transition window — remove once all repos moved
+    - "github/*"                # official GitHub primitives
+    - "epam/apm-*"              # APM co-maintainer
+  deny:
+    - "*"                        # default-deny: anything not on allow is blocked
+
+# 2. MCP servers — allow only first-party + audited partners
+mcp:
+  allow:
+    - "github/*"                # GitHub MCP
+    - "modelcontextprotocol/*"  # reference servers
+    - "zava-engineering/*"      # internal MCPs
+  deny:
+    - "*"
+
+# 3. Agent runtimes — restrict to harnesses we have an enterprise license for
+runtimes:
+  allow:
+    - "copilot"
+    - "claude-code"
+    - "codex"
+  deny:
+    - "*"
+
+# 4. Skills source registries — must come from APM registry or GitHub Skills
+skills_sources:
+  allow:
+    - "registry.apm.dev"
+    - "github.com"
+  deny:
+    - "*"
+
+# Drift detection: any unpinned or floating dependency is rejected.
+require_pinned: true
+require_lockfile: true
+
+# Findings handling
+findings:
+  fail_on:
+    - "policy_violation"
+    - "drift_detected"
+    - "missing_lockfile"
+    - "hidden_unicode"           # zero-width chars, RTL overrides, homoglyphs
+    - "secret_detected"
+  warn_on:
+    - "stale_dependency"
+    - "single_maintainer_dependency"
