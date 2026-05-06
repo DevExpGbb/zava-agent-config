@@ -68,6 +68,46 @@ jobs:
           done
           echo "All versions aligned at v$tag_ver"
 
+      - name: Validate skills against agentskills.io spec
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # gh skill (preview) ships in gh CLI v2.90+. Upgrade if missing.
+          if ! gh skill --help &>/dev/null; then
+            echo "gh skill not available, upgrading gh CLI..."
+            sudo install -dm 755 /etc/apt/keyrings
+            curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | sudo tee /etc/apt/keyrings/githubcli-archive-keyring.gpg > /dev/null
+            sudo chmod 644 /etc/apt/keyrings/githubcli-archive-keyring.gpg
+            echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" | sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null
+            sudo apt update && sudo apt install gh -y
+          fi
+          gh --version | head -1
+
+          # Validate every kit that ships skills. APM author layout buries
+          # skills under .apm/skills/ — pointing gh skill at .apm/ as the
+          # discovery root surfaces them via the standard skills/<name>/SKILL.md
+          # pattern. Warnings (secret scanning, tag protection rulesets) are
+          # tracked separately; only spec-level errors fail the build.
+          failed=0
+          validated=0
+          for d in plugins/*/.apm; do
+            [ -d "$d/skills" ] || continue
+            kit=$(basename "$(dirname "$d")")
+            echo "::group::Validating $kit against agentskills.io spec"
+            if ! gh skill publish --dry-run "$d"; then
+              echo "::error::Skill spec validation failed for $kit"
+              failed=1
+            fi
+            validated=$((validated + 1))
+            echo "::endgroup::"
+          done
+
+          if [ "$failed" -eq 1 ]; then
+            echo "::error::One or more kits failed agentskills.io spec validation"
+            exit 1
+          fi
+          echo "$validated kit(s) validated against agentskills.io spec ✓"
+
       - name: Regenerate marketplace.json + drift check
         run: |
           apm pack --offline
