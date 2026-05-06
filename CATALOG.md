@@ -64,9 +64,9 @@ Org-wide policy lives at [`DevExpGbb/.github/apm-policy.yml`](https://github.com
 | `.apm/skills/meeting-to-issue/` | `plugins/ideate-kit/skills/meeting-to-issue/` |
 | `.apm/skills/panel-review/` | `plugins/code-kit/skills/panel-review/` |
 | `.apm/skills/incident-to-pr/` | `plugins/operate-kit/skills/incident-to-pr/` |
-| `.apm/instructions/secure-coding-base.instructions.md` | `plugins/secure-baseline/instructions/secure-coding-base.instructions.md` |
-| `.apm/instructions/docs-style-guide.instructions.md` | `plugins/secure-baseline/instructions/docs-style-guide.instructions.md` |
-| `.apm/instructions/ci-cd-golden-paths.instructions.md` | `plugins/ship-kit/instructions/ci-cd-golden-paths.instructions.md` |
+| `.apm/instructions/secure-coding-base.instructions.md` | `plugins/secure-baseline/.apm/instructions/secure-coding-base.instructions.md` |
+| `.apm/instructions/docs-style-guide.instructions.md` | `plugins/secure-baseline/.apm/instructions/docs-style-guide.instructions.md` |
+| `.apm/instructions/ci-cd-golden-paths.instructions.md` | `plugins/ship-kit/.apm/instructions/ci-cd-golden-paths.instructions.md` |
 | `.apm/agents/architect.agent.md` | `plugins/code-kit/agents/architect.agent.md` |
 | `.apm/agents/security.agent.md` | `plugins/secure-baseline/agents/security.agent.md` |
 
