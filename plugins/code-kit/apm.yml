@@ -1,0 +1,18 @@
+# Per-plugin apm.yml — enables `apm pack --offline --archive` from this
+# directory to produce a Claude Code plugin tarball for GitHub Releases
+# distribution. Source of truth for runtime metadata is
+# .claude-plugin/plugin.json; keep `version` in sync with the top-level
+# marketplace (zava-agent-config v5.0.0).
+name: code-kit
+version: 5.0.1
+description: >-
+  CODE phase of the Zava Agentic SDLC ribbon. The architect persona — design-intent guidance during local authoring. (Pre-PR review skills moved to review-kit in v5.0.0.)
+author: Zava Engineering
+license: MIT
+
+dependencies:
+  apm: []
+
+# Mirror org policy compliance (DevExpGbb/.github/apm-policy.yml).
+compilation:
+  source_attribution: true

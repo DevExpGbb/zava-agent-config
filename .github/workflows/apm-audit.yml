@@ -9,10 +9,14 @@ name: apm-audit
 #
 #   jobs:
 #     audit:
-#       uses: DevExpGbb/zava-agent-config/.github/workflows/apm-audit.yml@v3.0.0
+#       uses: DevExpGbb/zava-agent-config/.github/workflows/apm-audit.yml@v5.0.1
 #
 # Pinning the workflow to a tag means the consumer's audit step is part of
 # the supply chain they audit — no implicit "latest" reusable workflow.
+#
+# v5.0.1+: this workflow uses microsoft/apm-action@v1 for CLI install and
+# audit. The action handles install + audit + SARIF emission in one step
+# and auto-forwards github.token as GITHUB_APM_PAT for same-org private deps.
 
 on:
   workflow_call:
@@ -35,16 +39,9 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Install APM CLI
-        run: |
-          curl -sSL https://aka.ms/apm-unix | APM_INSTALL_DIR="$HOME/.local/bin" sh
-          echo "$HOME/.local/bin" >> "$GITHUB_PATH"
-
-      - name: Verify APM CLI
-        run: apm --version
-
-      # Detect whether this repo declares APM deps. If not (e.g., zava-agent-config
-      # itself), audit is a no-op success and we skip the rest.
+      # Detect whether this repo declares APM deps. If not (e.g., a marketplace-
+      # only repo with `apm: []`), audit is a no-op success and we skip
+      # apm-action entirely. apm-action expects deps to install/audit.
       - name: Detect APM dependencies
         id: detect
         run: |
@@ -56,25 +53,12 @@ jobs:
             echo "::notice::No APM dependencies declared — audit is a no-op."
           fi
 
-      - name: APM install (populate cache for drift replay)
+      - name: Install + audit via microsoft/apm-action
         if: steps.detect.outputs.has_deps == 'true'
-        run: apm install
-
-      - name: APM audit (CI mode)
-        if: steps.detect.outputs.has_deps == 'true'
-        id: audit
-        run: |
-          echo "::group::Running apm audit --ci"
-          apm audit --ci -f sarif -o apm-audit.sarif
-          echo "::endgroup::"
-
-      - name: Upload audit report as artifact
-        if: always() && hashFiles('apm-audit.sarif') != ''
-        uses: actions/upload-artifact@v4
+        uses: microsoft/apm-action@v1
         with:
-          name: apm-audit-report
-          path: apm-audit.sarif
-          retention-days: 30
+          # Default behavior: apm install + audit. SARIF + step summary auto-emitted.
+          audit-report: true
 
       - name: Summarize on PR
         if: always() && github.event_name == 'pull_request'
@@ -83,9 +67,10 @@ jobs:
             echo "## 🛡️ APM Audit"
             echo ""
             if [ "${{ steps.detect.outputs.has_deps }}" = "true" ]; then
-              echo "Ran \`apm audit --ci\` against project policy (org: \`DevExpGbb/.github/apm-policy.yml\`)."
+              echo "Ran \`apm audit --ci\` against project policy via \`microsoft/apm-action@v1\`."
+              echo "(Org policy resolved from \`DevExpGbb/.github/apm-policy.yml\`.)"
               echo ""
-              echo "SARIF report uploaded as artifact: **apm-audit-report**."
+              echo "SARIF report uploaded by apm-action; see job logs and Code scanning tab."
             else
               echo "No APM dependencies declared in \`apm.yml\` — audit skipped."
             fi

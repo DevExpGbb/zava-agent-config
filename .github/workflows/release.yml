@@ -1,0 +1,180 @@
+name: release
+
+# Triggered on v* tag push. Packs each plugin as a Claude Code plugin tarball
+# (via `apm pack --offline --archive` with synthesized per-plugin apm.yml),
+# regenerates marketplace.json (drift check against the committed copy),
+# creates a GitHub Release, and uploads all six tarballs + marketplace.json
+# as release assets.
+#
+# Tarballs are immutable, content-hashed artifacts per plugin. Consumers
+# resolving via APM marketplace continue to use the git ref (`@v5.0.1`) —
+# tarballs are an additional distribution surface for Claude Code plugin
+# marketplace consumers and for SHA-pinning audit trails.
+#
+# To cut a release locally:
+#   git tag v5.0.1 && git push origin v5.0.1
+# CI handles the rest.
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+
+permissions:
+  contents: write   # required to create releases + upload assets
+
+jobs:
+  validate:
+    name: Validate marketplace + per-plugin pack
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.meta.outputs.version }}
+      kits: ${{ steps.meta.outputs.kits }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup APM CLI
+        uses: microsoft/apm-action@v1
+        with:
+          setup-only: 'true'
+
+      - name: Extract release metadata
+        id: meta
+        run: |
+          version="${GITHUB_REF_NAME#v}"
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+          kits=$(ls -d plugins/*/ | xargs -n1 basename | jq -R -s -c 'split("\n") | map(select(length > 0))')
+          echo "kits=$kits" >> "$GITHUB_OUTPUT"
+          echo "Release version: $version"
+          echo "Plugins to pack: $kits"
+
+      - name: Verify version alignment (tag = top-level apm.yml = each plugin)
+        run: |
+          tag_ver="${{ steps.meta.outputs.version }}"
+          top_ver=$(grep -E '^version:' apm.yml | head -1 | awk '{print $2}' | tr -d '"')
+          if [ "$tag_ver" != "$top_ver" ]; then
+            echo "::error::Tag version ($tag_ver) does not match top-level apm.yml version ($top_ver)"
+            exit 1
+          fi
+          for kit_dir in plugins/*/; do
+            kit_ver=$(grep -E '^version:' "$kit_dir/apm.yml" | head -1 | awk '{print $2}' | tr -d '"')
+            if [ "$kit_ver" != "$tag_ver" ]; then
+              echo "::error::$kit_dir version ($kit_ver) does not match tag ($tag_ver)"
+              exit 1
+            fi
+          done
+          echo "All versions aligned at v$tag_ver"
+
+      - name: Regenerate marketplace.json + drift check
+        run: |
+          apm pack --offline
+          if git diff --exit-code -- .claude-plugin/marketplace.json; then
+            echo "marketplace.json matches build output."
+          else
+            echo "::error::Drift between committed marketplace.json and build output. Run 'apm pack --offline' locally and commit before tagging."
+            git diff -- .claude-plugin/marketplace.json
+            exit 1
+          fi
+
+  pack:
+    name: Pack plugin tarballs
+    needs: validate
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: true
+      matrix:
+        kit: ${{ fromJson(needs.validate.outputs.kits) }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup APM CLI
+        uses: microsoft/apm-action@v1
+        with:
+          setup-only: 'true'
+
+      - name: Pack ${{ matrix.kit }}
+        run: |
+          mkdir -p "$GITHUB_WORKSPACE/dist"
+          ( cd "plugins/${{ matrix.kit }}" && \
+            apm pack --offline --archive -o "$GITHUB_WORKSPACE/dist" )
+          ls -la "$GITHUB_WORKSPACE/dist"
+
+      - name: Compute SHA256 for ${{ matrix.kit }}
+        run: |
+          cd "$GITHUB_WORKSPACE/dist"
+          sha256sum "${{ matrix.kit }}-${{ needs.validate.outputs.version }}.tar.gz" \
+            > "${{ matrix.kit }}-${{ needs.validate.outputs.version }}.tar.gz.sha256"
+          cat "${{ matrix.kit }}-${{ needs.validate.outputs.version }}.tar.gz.sha256"
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: plugin-${{ matrix.kit }}
+          path: |
+            dist/${{ matrix.kit }}-${{ needs.validate.outputs.version }}.tar.gz
+            dist/${{ matrix.kit }}-${{ needs.validate.outputs.version }}.tar.gz.sha256
+          if-no-files-found: error
+          retention-days: 7
+
+  release:
+    name: Create GitHub Release
+    needs: [validate, pack]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Download all plugin tarballs
+        uses: actions/download-artifact@v4
+        with:
+          path: dist
+          pattern: plugin-*
+          merge-multiple: true
+
+      - name: Stage marketplace.json
+        run: |
+          cp .claude-plugin/marketplace.json "dist/marketplace-${{ needs.validate.outputs.version }}.json"
+          ls -la dist/
+
+      - name: Determine prerelease
+        id: prerelease
+        run: |
+          if [[ "${{ needs.validate.outputs.version }}" == *-* ]]; then
+            echo "value=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "value=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.ref_name }}
+          name: zava-agent-config ${{ github.ref_name }}
+          generate_release_notes: true
+          prerelease: ${{ steps.prerelease.outputs.value == 'true' }}
+          fail_on_unmatched_files: true
+          body: |
+            ## zava-agent-config ${{ github.ref_name }}
+
+            Six SDLC-aligned plugins shipped as Claude Code plugin tarballs.
+            Consumers resolve via APM marketplace (`@${{ github.ref_name }}`)
+            or download tarballs below for direct Claude Code marketplace
+            installation.
+
+            **Marketplace**: `marketplace-${{ needs.validate.outputs.version }}.json`
+            **Plugins**: `secure-baseline`, `ideate-kit`, `code-kit`, `review-kit`, `release-kit`, `operate-kit`
+
+            Verify any tarball:
+            ```bash
+            sha256sum -c <plugin>-${{ needs.validate.outputs.version }}.tar.gz.sha256
+            ```
+
+            See auto-generated commit notes below for changes since the previous tag.
+          files: |
+            dist/*.tar.gz
+            dist/*.tar.gz.sha256
+            dist/marketplace-${{ needs.validate.outputs.version }}.json

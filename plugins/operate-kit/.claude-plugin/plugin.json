@@ -1,10 +1,19 @@
 {
   "name": "operate-kit",
-  "version": "5.0.0",
-  "description": "OPERATE phase of the Zava Agentic SDLC ribbon. Incident-to-PR skill — converts an Azure SRE Agent finding into a remediation pull request scoped to the right repo.",
-  "author": { "name": "Zava Engineering" },
+  "version": "5.0.1",
+  "description": "OPERATE phase of the Zava Agentic SDLC ribbon. Incident-to-PR skill \u2014 converts an Azure SRE Agent finding into a remediation pull request scoped to the right repo.",
+  "author": {
+    "name": "Zava Engineering"
+  },
   "license": "MIT",
   "repository": "https://github.com/DevExpGbb/zava-agent-config",
   "homepage": "https://github.com/DevExpGbb/zava-agent-config/tree/main/plugins/operate-kit",
-  "keywords": ["agentic-sdlc", "apm", "zava", "operate", "incident", "sre"]
+  "keywords": [
+    "agentic-sdlc",
+    "apm",
+    "zava",
+    "operate",
+    "incident",
+    "sre"
+  ]
 }
