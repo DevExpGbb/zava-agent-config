@@ -1,11 +1,18 @@
 name: self-audit
 
-# zava-agent-config eats its own dog food: every push and PR runs apm install
-# + apm audit --ci to prove the lib's own primitives, lockfile, and (future)
-# marketplace bundle are reproducible and drift-free.
+# zava-agent-config eats its own dog food: every push and PR runs apm install,
+# apm audit --ci, and apm pack to prove the marketplace builds reproducibly
+# and the package complies with org policy.
 #
 # This is the lib equivalent of the reusable apm-audit.yml that consumers call.
 # If this fails, downstream consumers cannot trust the v* tag we publish.
+#
+# Note (v2.0.0+): this repo is a marketplace, not a primitives bag.
+#   - `apm install` is a no-op (zero deps) but still runs to catch CLI regressions.
+#   - `apm pack --offline` validates that the marketplace block compiles to a
+#     well-formed .claude-plugin/marketplace.json and every plugin source resolves.
+#   - We commit .claude-plugin/marketplace.json so downstream tooling and
+#     reviewers can diff it without invoking the CLI.
 
 on:
   push:
@@ -19,7 +26,7 @@ permissions:
 
 jobs:
   self-audit:
-    name: Self-audit (apm install + audit)
+    name: Self-audit (install + audit + pack)
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -35,31 +42,30 @@ jobs:
       - name: Verify APM CLI
         run: apm --version
 
-      - name: APM install (resolve + deploy own primitives)
+      - name: APM install (no-op for marketplace repo, catches CLI regressions)
         run: |
           echo "::group::apm install"
           apm install
           echo "::endgroup::"
 
-      - name: Verify lockfile present and tracked
-        run: |
-          if [ ! -f apm.lock.yaml ]; then
-            echo "::error::apm.lock.yaml missing after install. Did install fail?"
-            exit 1
-          fi
-          if git diff --exit-code -- apm.lock.yaml; then
-            echo "Lockfile in sync with committed copy."
-          else
-            echo "::error::apm.lock.yaml drift detected vs committed copy. Run 'apm install' locally and commit the result."
-            git diff -- apm.lock.yaml
-            exit 1
-          fi
-
-      - name: APM audit (CI mode — drift + supply chain)
+      - name: APM audit (CI mode — supply chain + org policy)
         run: |
           echo "::group::apm audit --ci"
           apm audit --ci -f sarif -o apm-audit.sarif
           echo "::endgroup::"
+
+      - name: APM pack (validate marketplace builds + drift check)
+        run: |
+          echo "::group::apm pack --offline"
+          apm pack --offline
+          echo "::endgroup::"
+          if git diff --exit-code -- .claude-plugin/marketplace.json; then
+            echo "Committed marketplace.json matches build output."
+          else
+            echo "::error::Drift between committed .claude-plugin/marketplace.json and apm pack output. Run 'apm pack --offline' locally and commit the result."
+            git diff -- .claude-plugin/marketplace.json
+            exit 1
+          fi
 
       - name: Upload audit report as artifact
         if: always()
@@ -75,8 +81,8 @@ jobs:
           {
             echo "## APM self-audit"
             echo ""
-            echo "- **Lib**: \`zava-agent-config\`"
+            echo "- **Lib**: \`zava-agent-config\` (marketplace)"
             echo "- **Commit**: \`${GITHUB_SHA::7}\`"
-            echo "- **Lockfile**: $( [ -f apm.lock.yaml ] && echo 'present + tracked' || echo 'MISSING' )"
+            echo "- **Marketplace**: \`.claude-plugin/marketplace.json\` (5 plugins)"
             echo "- **Audit report**: \`apm-audit.sarif\` (artifact)"
           } >> "$GITHUB_STEP_SUMMARY"

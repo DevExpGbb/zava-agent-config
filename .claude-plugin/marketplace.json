@@ -1,0 +1,34 @@
+{
+  "name": "zava-agent-config",
+  "owner": {
+    "name": "Zava Engineering",
+    "url": "https://github.com/DevExpGbb/zava-agent-config"
+  },
+  "plugins": [
+    {
+      "name": "secure-baseline",
+      "description": "Cross-cutting baseline — secure-coding instructions, docs style guide, security reviewer persona. Every Zava service pins this.",
+      "source": "./plugins/secure-baseline"
+    },
+    {
+      "name": "ideate-kit",
+      "description": "IDEATE stage — meeting-to-issue skill (transcript / voice / ticket → well-formed GitHub issue).",
+      "source": "./plugins/ideate-kit"
+    },
+    {
+      "name": "code-kit",
+      "description": "CODE stage — panel-review skill plus architect persona for design-intent enforcement during authoring and PR review.",
+      "source": "./plugins/code-kit"
+    },
+    {
+      "name": "ship-kit",
+      "description": "BUILD/RELEASE stage — CI/CD golden paths instructions (reusable workflows, deploy gates, environment promotion).",
+      "source": "./plugins/ship-kit"
+    },
+    {
+      "name": "operate-kit",
+      "description": "OPERATE stage — incident-to-PR skill (Azure SRE Agent finding → scoped remediation pull request).",
+      "source": "./plugins/operate-kit"
+    }
+  ]
+}
