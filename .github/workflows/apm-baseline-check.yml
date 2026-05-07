@@ -1,0 +1,76 @@
+name: APM baseline check (reusable)
+
+# Reusable workflow that fails the build if the `secure-baseline` floor is
+# missing from the consumer's resolved APM lockfile, OR if multiple refs
+# resolve (which would indicate a transitive shortcut sneaking in via a
+# phase kit — see CATALOG.md "Consumption patterns").
+#
+# Wire from a consumer repo via:
+#
+#   jobs:
+#     baseline:
+#       uses: DevExpGbb/zava-agent-config/.github/workflows/apm-baseline-check.yml@main
+#
+# The check runs against `apm.lock.yaml` at the consumer repo root. It is
+# a defense-in-depth complement to the org-policy explicit-pin rule.
+
+on:
+  workflow_call:
+    inputs:
+      lockfile:
+        description: Path to apm lockfile (relative to repo root)
+        required: false
+        type: string
+        default: apm.lock.yaml
+      baseline-name:
+        description: Name of the baseline plugin to enforce
+        required: false
+        type: string
+        default: secure-baseline
+
+jobs:
+  enforce-baseline-floor:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout consumer repo
+        uses: actions/checkout@v4
+
+      - name: Verify baseline is present and singular
+        shell: bash
+        env:
+          LOCKFILE: ${{ inputs.lockfile }}
+          BASELINE: ${{ inputs.baseline-name }}
+        run: |
+          set -euo pipefail
+          if [ ! -f "$LOCKFILE" ]; then
+            echo "::error::APM lockfile not found at $LOCKFILE — run 'apm install' and commit it."
+            exit 1
+          fi
+
+          # Count distinct refs of the baseline plugin in the resolved graph.
+          # Match either explicit-pin path 'plugins/<baseline>' or marketplace name '<baseline>'.
+          matches=$(grep -E "(plugins/${BASELINE}|name:[[:space:]]+${BASELINE})" "$LOCKFILE" | sort -u || true)
+          count=$(printf '%s\n' "$matches" | grep -c . || true)
+
+          echo "Baseline matches in $LOCKFILE:"
+          printf '%s\n' "$matches" | sed 's/^/  /'
+          echo
+
+          if [ "$count" -eq 0 ]; then
+            echo "::error::Baseline '$BASELINE' is missing from $LOCKFILE."
+            echo "::error::Pin DevExpGbb/zava-agent-config/plugins/${BASELINE}#<ref> in your apm.yml — see CATALOG.md 'Consumption patterns'."
+            exit 1
+          fi
+
+          # Extract distinct version refs to detect transitive-shortcut drift.
+          refs=$(grep -E "${BASELINE}#" "$LOCKFILE" | sed -E "s/.*${BASELINE}#([^\"' ]+).*/\1/" | sort -u || true)
+          ref_count=$(printf '%s\n' "$refs" | grep -c . || true)
+
+          if [ "$ref_count" -gt 1 ]; then
+            echo "::error::Multiple distinct refs of '$BASELINE' resolved in $LOCKFILE:"
+            printf '%s\n' "$refs" | sed 's/^/  /'
+            echo "::error::A phase kit may be transitively pulling the baseline. Pin it explicitly at one ref in apm.yml; remove any transitive declarations."
+            exit 1
+          fi
+
+          echo "::notice::Baseline floor enforced — '$BASELINE' present, ${ref_count:-1} ref."
