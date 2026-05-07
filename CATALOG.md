@@ -74,7 +74,7 @@ Pin `ideate-kit` only if your repo receives unstructured input that becomes issu
 
 ### Future direction: `peer_dependencies`
 
-The right long-term shape is a `peer_dependencies` (or `peerDependencies`) field on phase kits that **declares** the security-floor expectation and **errors at install** if the consumer hasn't pinned a compatible `secure-baseline`. This is the npm-ecosystem precedent. Tracked in [`microsoft/apm` peer-dependencies RFC](https://github.com/microsoft/apm/issues/) (link added when filed).
+The right long-term shape is a `peer_dependencies` (or `peerDependencies`) field on phase kits that **declares** the security-floor expectation and **errors at install** if the consumer hasn't pinned a compatible `secure-baseline`. This is the npm-ecosystem precedent. Tracked in [microsoft/apm#1196](https://github.com/microsoft/apm/issues/1196).
 
 ## Policy
 
