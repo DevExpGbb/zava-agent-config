@@ -43,25 +43,20 @@ flowchart TB
     KITS -. underpinned by .-> FOUND
     KITS -. paired with .-> ACCEL
 
-    classDef phase fill:#9eff66,stroke:#9eff66,color:#1a1f3a,font-weight:bold
-    classDef gap fill:#1a1f3a,stroke:#3d4560,color:#6a7290,stroke-dasharray:3 3
-    classDef kit fill:#1a1f3a,stroke:#9eff66,stroke-width:2px,color:#f5f1e8
-    classDef baseline fill:#1a1f3a,stroke:#c9a36b,stroke-width:2px,color:#f5f1e8
-    classDef accelerator fill:#1a1f3a,stroke:#e89a4a,stroke-width:2px,color:#f5f1e8
+    classDef phase fill:#e8d5f2,stroke:#6a3d9a,color:#222
+    classDef gap fill:#eee,stroke:#888,color:#888,stroke-dasharray:3 3
+    classDef kit fill:#d4ecd5,stroke:#2d7a3a,color:#222
+    classDef baseline fill:#fff7d6,stroke:#b58900,color:#222
+    classDef accelerator fill:#cfe3f7,stroke:#1f5f9e,color:#222
 
     class P1,P3,P6,P7,P8 phase
     class P2,P4,P5 gap
     class K1,K3,K6,K7,K8 kit
     class BASE baseline
     class ACC1 accelerator
-
-    style RIBBON fill:#0f1428,stroke:#3d4560,color:#9eff66
-    style KITS fill:#0f1428,stroke:#3d4560,color:#f5f1e8
-    style FOUND fill:#1a1f3a,stroke:#c9a36b,color:#c9a36b
-    style ACCEL fill:#1a1f3a,stroke:#e89a4a,color:#e89a4a
 ```
 
-**Reading the diagram.** Solid green phases have a kit shipping today; dashed phases (`PLAN`, `BUILD`, `TEST`) are roadmap — kits land additively as content matures, no breaking re-pins for consumers. The foundation (`secure-baseline`) sits *under* the phase kits because it is a security floor, not a phase tool — every consumer declares it explicitly so a `grep secure-baseline apm.yml` proves the floor is in force. Accelerators sit *beside* the phase row because their value is bursty (you run them once per migration), unlike phase kits which compound on every PR.
+**Reading the diagram.** Filled phases (purple) have a kit shipping today; dashed phases (`PLAN`, `BUILD`, `TEST`) are roadmap — kits land additively as content matures, no breaking re-pins for consumers. The foundation (`secure-baseline`, amber) sits *under* the phase kits because it is a security floor, not a phase tool — every consumer declares it explicitly so a `grep secure-baseline apm.yml` proves the floor is in force. Accelerators (blue) sit *beside* the phase row because their value is bursty (you run them once per migration), unlike phase kits which compound on every PR.
 
 > *Modular packages. Composable agent behaviour.* — Each plugin is independently versioned, pinned by consumers in `apm.yml`, audited every PR, and distributed as signed tarballs (see [Governance](#governance)). Two accelerators ship today: `framework-modernizer` (Express 4→5, **v6.0.0**) and `nextjs-modernizer` (Next 14→15, **v6.1.0**).
 
