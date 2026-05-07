@@ -1,10 +1,12 @@
 name: zava-agent-config
-version: 5.0.1
+version: 6.0.0
 description: >-
-  Zava Engineering — central agent configuration marketplace. Six SDLC-aligned
-  plugins (secure-baseline + ideate/code/review/release/operate kits) that every
-  Zava service repo composes via apm.yml. Reference for the joint Microsoft +
-  GitHub Agentic SDLC Demo Platform.
+  Zava Engineering — central agent configuration marketplace. Seven plugins in
+  three tiers: cross-cutting baseline (secure-baseline) + five SDLC phase kits
+  (ideate / code / review / release / operate) + one accelerator (modernize-kit
+  for episodic framework migrations). Every Zava service repo composes the
+  baseline + selected kits via apm.yml; accelerators are pinned only when
+  running an X→Y migration.
 author: Zava Engineering
 license: MIT
 keywords:
@@ -56,3 +58,6 @@ marketplace:
     - name: operate-kit
       source: ./plugins/operate-kit
       description: OPERATE stage — incident-to-PR skill (Azure SRE Agent finding → scoped remediation pull request).
+    - name: modernize-kit
+      source: ./plugins/modernize-kit
+      description: ACCELERATOR — framework / runtime modernization. Episodic, opt-in skills (Express 4→5 ships in v6.0.0; Next, React, Spring, Java on the roadmap). Pin only when running a migration. NOT a phase kit — does not compound.

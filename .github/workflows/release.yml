@@ -200,13 +200,13 @@ jobs:
           body: |
             ## zava-agent-config ${{ github.ref_name }}
 
-            Six SDLC-aligned plugins shipped as Claude Code plugin tarballs.
-            Consumers resolve via APM marketplace (`@${{ github.ref_name }}`)
-            or download tarballs below for direct Claude Code marketplace
-            installation.
+            Plugins shipped as Claude Code plugin tarballs in three tiers
+            (baseline + phase kits + accelerators). Consumers resolve via APM
+            marketplace (`@${{ github.ref_name }}`) or download tarballs below
+            for direct Claude Code marketplace installation.
 
             **Marketplace**: `marketplace-${{ needs.validate.outputs.version }}.json`
-            **Plugins**: `secure-baseline`, `ideate-kit`, `code-kit`, `review-kit`, `release-kit`, `operate-kit`
+            **Plugins**: ${{ needs.validate.outputs.kits }}
 
             Verify any tarball:
             ```bash

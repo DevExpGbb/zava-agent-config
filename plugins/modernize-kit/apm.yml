@@ -3,17 +3,15 @@
 # distribution. Source of truth for runtime metadata is
 # .claude-plugin/plugin.json; keep `version` in sync with the top-level
 # marketplace (zava-agent-config v6.0.0).
-name: release-kit
+name: modernize-kit
 version: 6.0.0
 description: >-
-  RELEASE phase of the Zava Agentic SDLC ribbon. CI/CD golden paths instructions — reusable workflows, deployment gates, environment promotion conventions.
+  ACCELERATOR — framework / runtime modernization. Episodic, opt-in skills that audit a codebase against an X→Y framework migration, classify findings (SAFE / AUTOFIX / MANUAL), and emit a phased migration plan. NOT a phase kit — does not compound; pin only when running a migration.
 author: Zava Engineering
 license: MIT
 
-# Zero transitive APM deps — intentional. The cross-cutting baseline
-# (secure-baseline) is NOT redeclared here so consumers cannot accidentally
-# rely on transitive resolution to satisfy their security floor. See
-# zava-agent-config CATALOG.md "Consumption patterns" for the rationale.
+# Zero transitive APM deps — intentional. Consumers explicitly pin
+# secure-baseline alongside this kit. See CATALOG.md "Consumption patterns".
 dependencies:
   apm: []
 

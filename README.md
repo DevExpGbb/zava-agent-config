@@ -33,7 +33,7 @@ flowchart TB
 
     subgraph ACCEL["ACCELERATORS  ·  episodic, opt-in  ·  not tied to a single phase"]
         direction TB
-        ACC1["modernize-kit<br/><i>framework-modernizer (skill)<br/>nextjs-modernizer (skill)</i>"]
+        ACC1["modernize-kit<br/><i>framework-modernizer · Express 4→5</i><br/><i>(roadmap: Next 14→15, React 17→18, Spring Boot 2→3, Java 8→17)</i>"]
     end
 
     P1 --> K1
@@ -65,11 +65,11 @@ flowchart TB
 
 **Reading the diagram.** Solid green phases have a kit shipping today; dashed phases (`PLAN`, `BUILD`, `TEST`) are roadmap — kits land additively as content matures, no breaking re-pins for consumers. The foundation (`secure-baseline`) sits *under* the phase kits because it is a security floor, not a phase tool — every consumer declares it explicitly so a `grep secure-baseline apm.yml` proves the floor is in force. Accelerators sit *beside* the phase row because their value is bursty (you run them once per migration), unlike phase kits which compound on every PR.
 
-> *Modular packages. Composable agent behaviour.* — Each plugin is independently versioned, pinned by consumers in `apm.yml`, audited every PR, and distributed as signed tarballs (see [Governance](#governance)). Accelerator content lands in **v6.0.0**.
+> *Modular packages. Composable agent behaviour.* — Each plugin is independently versioned, pinned by consumers in `apm.yml`, audited every PR, and distributed as signed tarballs (see [Governance](#governance)). The first accelerator (`modernize-kit`) ships in **v6.0.0**.
 
-## What's in here (v5.0.1)
+## What's in here (v6.0.0)
 
-A 6-plugin APM marketplace aligned to the [PLATFORM.md §6.1](https://github.com/DevExpGbb/agentic-sdlc-ref/blob/main/PLATFORM.md#61-layer-a--the-sdlc-ribbon) SDLC ribbon. Three categories per the taxonomy above:
+A 7-plugin APM marketplace aligned to the [PLATFORM.md §6.1](https://github.com/DevExpGbb/agentic-sdlc-ref/blob/main/PLATFORM.md#61-layer-a--the-sdlc-ribbon) SDLC ribbon. Three categories per the taxonomy above:
 
 **Foundation (cross-cutting)**
 | Plugin | What's inside |
@@ -85,10 +85,10 @@ A 6-plugin APM marketplace aligned to the [PLATFORM.md §6.1](https://github.com
 | [`release-kit`](plugins/release-kit/) | RELEASE | `ci-cd-golden-paths` instructions |
 | [`operate-kit`](plugins/operate-kit/) | OPERATE | `incident-to-pr` skill |
 
-**Accelerators (episodic, opt-in)**
-| Plugin | Lands in |
-|---|---|
-| `modernize-kit` | v6.0.0 — framework migration patterns (Express 4→5, Next 14→15, …) |
+**Accelerators (episodic, opt-in — pin only when running a migration)**
+| Plugin | What's inside | Roadmap |
+|---|---|---|
+| [`modernize-kit`](plugins/modernize-kit/) | `framework-modernizer` skill (Express 4→5): catalog of breaking-change patterns, SAFE/AUTOFIX/MANUAL classifier rubric, eval fixture, phased-plan template | `nextjs-modernizer` (Next 14→15), `react-modernizer` (17→18), `springboot-modernizer` (2→3), `java-modernizer` (8→17) |
 
 See [`CATALOG.md`](CATALOG.md) for the full index, migration table from v1.0.x, [consumption patterns](CATALOG.md#consumption-patterns), and consumer pin recipes.
 

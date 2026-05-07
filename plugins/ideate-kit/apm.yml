@@ -2,9 +2,9 @@
 # directory to produce a Claude Code plugin tarball for GitHub Releases
 # distribution. Source of truth for runtime metadata is
 # .claude-plugin/plugin.json; keep `version` in sync with the top-level
-# marketplace (zava-agent-config v5.0.0).
+# marketplace (zava-agent-config v6.0.0).
 name: ideate-kit
-version: 5.0.1
+version: 6.0.0
 description: >-
   IDEATE phase of the Zava Agentic SDLC ribbon. Turns unstructured input (meeting transcripts, voice notes, customer tickets) into well-formed GitHub issues ready for planning.
 author: Zava Engineering
