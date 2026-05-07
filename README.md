@@ -4,8 +4,6 @@
 
 **Central agent configuration marketplace for Zava Engineering.** Every Zava service repo (storefront, checkout, platform, …) pins one or more plugins from this package via `apm.yml`, so a single change here propagates to every developer's IDE, every PR, and every Coding Agent run across the org.
 
-> Part of the joint Microsoft + GitHub Agentic SDLC Demo Platform. See [`PLATFORM.md`](https://github.com/DevExpGbb/agentic-sdlc-ref/blob/main/PLATFORM.md) for the full reference and [`delivery/lloyds-ph1-delivery-plan.md`](https://github.com/DevExpGbb/agentic-sdlc-ref/blob/main/delivery/lloyds-ph1-delivery-plan.md) for the customer-facing workshop slice.
-
 ## How the kits compose
 
 The marketplace is a 3-tier taxonomy that mirrors the [PLATFORM.md SDLC ribbon](https://github.com/DevExpGbb/agentic-sdlc-ref/blob/main/PLATFORM.md#2-the-agentic-sdlc-ribbon). **Phase kits** compound in lockstep with developer flow (one per phase). The **cross-cutting baseline** is a foundation underlay every consumer pins explicitly. **Accelerators** are episodic, opt-in plugins that don't map to a single phase (framework migrations, large refactors).
