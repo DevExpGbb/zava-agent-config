@@ -37,7 +37,7 @@
     },
     {
       "name": "modernize-kit",
-      "description": "ACCELERATOR — framework / runtime modernization. Episodic, opt-in skills (Express 4→5 ships in v6.0.0; Next, React, Spring, Java on the roadmap). Pin only when running a migration. NOT a phase kit — does not compound.",
+      "description": "ACCELERATOR — framework / runtime modernization. Episodic, opt-in skills (framework-modernizer Express 4→5 in v6.0.0; nextjs-modernizer Next 14→15 in v6.1.0; React, Spring, Java on the roadmap). Pin only when running a migration. NOT a phase kit — does not compound.",
       "source": "./plugins/modernize-kit"
     }
   ]

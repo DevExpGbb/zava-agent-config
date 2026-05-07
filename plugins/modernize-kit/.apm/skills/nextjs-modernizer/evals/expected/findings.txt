@@ -1,0 +1,23 @@
+# Expected findings for nextjs-modernizer eval fixture
+# Format: BC-ID<TAB>file<TAB>line
+# Sorted by file then line then BC-ID. Comments (#) and blank lines ignored by run.js.
+#
+# Total: 12 findings across 4 files
+#   Catalog coverage: BC-001..BC-004 (Async Request APIs)
+#                     BC-101, BC-102 (Caching defaults)
+#                     BC-201, BC-202, BC-203 (Removed/renamed config)
+#                     BC-301 (Removed APIs - geo/ip)
+#                     BC-302 (next/image domains)
+#   BC-103 and BC-401 are detection-free (config + package.json check at discover step)
+BC-203	app/api/items/route.ts	1
+BC-102	app/api/items/route.ts	3
+BC-301	app/api/items/route.ts	4
+BC-301	app/api/items/route.ts	5
+BC-004	app/dashboard/[id]/page.tsx	1
+BC-001	app/page.tsx	4
+BC-002	app/page.tsx	5
+BC-003	app/page.tsx	6
+BC-101	app/page.tsx	7
+BC-201	next.config.js	4
+BC-202	next.config.js	5
+BC-302	next.config.js	8

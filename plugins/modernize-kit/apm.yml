@@ -2,9 +2,9 @@
 # directory to produce a Claude Code plugin tarball for GitHub Releases
 # distribution. Source of truth for runtime metadata is
 # .claude-plugin/plugin.json; keep `version` in sync with the top-level
-# marketplace (zava-agent-config v6.0.0).
+# marketplace (zava-agent-config v6.1.0).
 name: modernize-kit
-version: 6.0.0
+version: 6.1.0
 description: >-
   ACCELERATOR — framework / runtime modernization. Episodic, opt-in skills that audit a codebase against an X→Y framework migration, classify findings (SAFE / AUTOFIX / MANUAL), and emit a phased migration plan. NOT a phase kit — does not compound; pin only when running a migration.
 author: Zava Engineering

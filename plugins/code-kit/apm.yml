@@ -2,9 +2,9 @@
 # directory to produce a Claude Code plugin tarball for GitHub Releases
 # distribution. Source of truth for runtime metadata is
 # .claude-plugin/plugin.json; keep `version` in sync with the top-level
-# marketplace (zava-agent-config v6.0.0).
+# marketplace (zava-agent-config v6.1.0).
 name: code-kit
-version: 6.0.0
+version: 6.1.0
 description: >-
   CODE phase of the Zava Agentic SDLC ribbon. The architect persona — design-intent guidance during local authoring. (Pre-PR review skills moved to review-kit in v5.0.0.)
 author: Zava Engineering

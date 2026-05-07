@@ -33,7 +33,7 @@ flowchart TB
 
     subgraph ACCEL["ACCELERATORS  ·  episodic, opt-in  ·  not tied to a single phase"]
         direction TB
-        ACC1["modernize-kit<br/><i>framework-modernizer · Express 4→5</i><br/><i>(roadmap: Next 14→15, React 17→18, Spring Boot 2→3, Java 8→17)</i>"]
+        ACC1["modernize-kit<br/><i>framework-modernizer · Express 4→5</i><br/><i>nextjs-modernizer · Next 14→15</i><br/><i>(roadmap: React 17→18, Spring Boot 2→3, Java 8→17)</i>"]
     end
 
     P1 --> K1
@@ -65,7 +65,7 @@ flowchart TB
 
 **Reading the diagram.** Solid green phases have a kit shipping today; dashed phases (`PLAN`, `BUILD`, `TEST`) are roadmap — kits land additively as content matures, no breaking re-pins for consumers. The foundation (`secure-baseline`) sits *under* the phase kits because it is a security floor, not a phase tool — every consumer declares it explicitly so a `grep secure-baseline apm.yml` proves the floor is in force. Accelerators sit *beside* the phase row because their value is bursty (you run them once per migration), unlike phase kits which compound on every PR.
 
-> *Modular packages. Composable agent behaviour.* — Each plugin is independently versioned, pinned by consumers in `apm.yml`, audited every PR, and distributed as signed tarballs (see [Governance](#governance)). The first accelerator (`modernize-kit`) ships in **v6.0.0**.
+> *Modular packages. Composable agent behaviour.* — Each plugin is independently versioned, pinned by consumers in `apm.yml`, audited every PR, and distributed as signed tarballs (see [Governance](#governance)). Two accelerators ship today: `framework-modernizer` (Express 4→5, **v6.0.0**) and `nextjs-modernizer` (Next 14→15, **v6.1.0**).
 
 ## What's in here (v6.0.0)
 
@@ -88,7 +88,7 @@ A 7-plugin APM marketplace aligned to the [PLATFORM.md §6.1](https://github.com
 **Accelerators (episodic, opt-in — pin only when running a migration)**
 | Plugin | What's inside | Roadmap |
 |---|---|---|
-| [`modernize-kit`](plugins/modernize-kit/) | `framework-modernizer` skill (Express 4→5): catalog of breaking-change patterns, SAFE/AUTOFIX/MANUAL classifier rubric, eval fixture, phased-plan template | `nextjs-modernizer` (Next 14→15), `react-modernizer` (17→18), `springboot-modernizer` (2→3), `java-modernizer` (8→17) |
+| [`modernize-kit`](plugins/modernize-kit/) | `framework-modernizer` skill (Express 4→5) + `nextjs-modernizer` skill (Next 14→15): each ships a catalog of breaking-change patterns, SAFE/AUTOFIX/MANUAL classifier rubric, eval fixture, phased-plan template | `react-modernizer` (17→18), `springboot-modernizer` (2→3), `java-modernizer` (8→17) |
 
 See [`CATALOG.md`](CATALOG.md) for the full index, migration table from v1.0.x, [consumption patterns](CATALOG.md#consumption-patterns), and consumer pin recipes.
 
