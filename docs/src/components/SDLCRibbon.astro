@@ -1,0 +1,17 @@
+---
+import { PHASES, pluginsByPhase, phaseStatus } from '../data/plugins';
+---
+<div class="sdlc-ribbon">
+  {PHASES.map(({ id, label }) => {
+    const status = phaseStatus(id);
+    const count = pluginsByPhase(id).length;
+    return (
+      <a class="sdlc-cell" data-status={status} href={`/zava-agent-config/sdlc/${label.toLowerCase()}/`}>
+        <span class="sdlc-name">{label}</span>
+        <span class="sdlc-count">
+          {status === 'covered' ? `✅ ${count} kit${count > 1 ? 's' : ''}` : '🛣 roadmap'}
+        </span>
+      </a>
+    );
+  })}
+</div>

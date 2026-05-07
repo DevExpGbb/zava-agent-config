@@ -1,0 +1,32 @@
+---
+title: Catalog
+description: Every plugin shipped by the Zava marketplace, grouped by tier.
+---
+
+import PolicyBanner from '../../../components/PolicyBanner.astro';
+import PluginGrid from '../../../components/PluginGrid.astro';
+import { plugins, VERSION } from '../../../data/plugins';
+
+The full marketplace at <code>v{VERSION}</code> — {plugins.length} plugins in
+three tiers.
+
+<PolicyBanner />
+
+## Foundation
+
+Cross-cutting baseline. Every Zava service pins this **explicitly** —
+[never satisfied transitively](/zava-agent-config/governance/consumption-patterns/).
+
+<PluginGrid tier="foundation" />
+
+## Phase kits
+
+One per covered SDLC phase. Pin only the phases your repo actually exercises.
+
+<PluginGrid tier="phase" />
+
+## Accelerators
+
+Episodic, opt-in. Pin during a planned migration, remove afterwards.
+
+<PluginGrid tier="accelerator" />

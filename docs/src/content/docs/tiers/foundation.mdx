@@ -1,0 +1,18 @@
+---
+title: Foundation
+description: The cross-cutting baseline — explicitly pinned by every Zava service repo.
+---
+
+import PluginGrid from '../../../components/PluginGrid.astro';
+import { LinkCard } from '@astrojs/starlight/components';
+
+Cross-cutting plugins that sit **under** the SDLC ribbon. Every Zava service
+pins these explicitly — they are never satisfied transitively by phase kits.
+
+<PluginGrid tier="foundation" />
+
+<LinkCard
+  title="Why no transitive shortcut?"
+  description="Consumption patterns — the rationale for explicit foundation pins."
+  href="/zava-agent-config/governance/consumption-patterns/"
+/>

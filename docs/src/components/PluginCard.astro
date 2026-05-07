@@ -1,0 +1,13 @@
+---
+import { TIER_LABEL, type Plugin } from '../data/plugins';
+const { plugin } = Astro.props as { plugin: Plugin };
+const tierLabel = TIER_LABEL[plugin.tier];
+---
+<a class="catalog-card" href={`/zava-agent-config/catalog/${plugin.id}/`}>
+  <h3>
+    <span class="tier-pill" data-tier={plugin.tier}>{tierLabel}</span>
+    {plugin.phase && <span class="phase-pill">{plugin.phase}</span>}
+    {plugin.name}
+  </h3>
+  <p>{plugin.marketplaceDescription}</p>
+</a>

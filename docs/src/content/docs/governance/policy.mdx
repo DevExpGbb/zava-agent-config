@@ -1,0 +1,57 @@
+---
+title: Policy & CI
+description: The org-wide APM policy that gates every Zava PR, where it lives, and how to learn more.
+---
+
+import { LinkCard, Code, Card, CardGrid } from '@astrojs/starlight/components';
+import { POLICY_FILE_URL, POLICY_DOCS_URL, POLICY_REPO } from '../../../data/plugins';
+
+A single policy file governs every Zava repo. You don't copy it — your repo
+inherits it automatically through GitHub's
+[`.github` default-config pattern](https://docs.github.com/en/communities/setting-up-your-project-for-healthy-contributions/customizing-your-projects-default-files).
+
+<CardGrid>
+  <Card title="The policy file" icon="document">
+    <a href={POLICY_FILE_URL} rel="noopener">
+      <code>{POLICY_REPO}/apm-policy.yml</code>
+    </a>
+    <p>
+      The single source of truth. Edit there to change the rules for every Zava repo.
+    </p>
+  </Card>
+  <Card title="How it's wired up" icon="setting">
+    <a href={POLICY_DOCS_URL} rel="noopener">APM CI policy setup guide ↗</a>
+    <p>
+      Upstream APM docs explaining how <code>apm audit --ci</code> discovers and applies the policy.
+    </p>
+  </Card>
+</CardGrid>
+
+## What gates a Zava PR
+
+| Gate | What it checks |
+| --- | --- |
+| `apm audit --ci` (reusable workflow `.github/workflows/apm-audit.yml`) | Org-policy compliance, lockfile drift, source attribution, hidden Unicode, secret detection. |
+| Org-level **GHE ruleset** on `zava-engineering` | Marks the audit check **required for merge** — no green check, no merge. |
+| `.github/workflows/self-audit.yml` (this repo only) | Dogfood: every push runs `apm install` + `apm audit --ci` + `apm pack`. Fails the build on marketplace drift. |
+
+## Verify the policy applies to your repo
+
+<Code lang="bash" code={'apm audit --ci'} />
+
+If the command exits non-zero, your repo is out of compliance. The output
+points at the offending file and rule id; cross-reference with
+`DevExpGbb/.github/apm-policy.yml`.
+
+## Changing the policy
+
+The policy is org-wide — changes affect every Zava repo on the next CI run.
+Open a PR against [`{POLICY_REPO}`]({POLICY_FILE_URL}) and follow the
+governance review process documented there.
+
+<LinkCard
+  title="APM CI policy setup guide"
+  description="Upstream documentation on policy discovery, rule severity, and audit output."
+  href={POLICY_DOCS_URL}
+  target="_blank"
+/>

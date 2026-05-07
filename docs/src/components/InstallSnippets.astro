@@ -1,0 +1,41 @@
+---
+import { Code, Tabs, TabItem } from '@astrojs/starlight/components';
+import { REPO, TAG, type Plugin } from '../data/plugins';
+const { plugin } = Astro.props as { plugin: Plugin };
+
+const directPin = `dependencies:
+  apm:
+    - ${REPO}/${plugin.source}#${TAG}`;
+
+const oneShot = `apm install ${REPO}/${plugin.source}#${TAG}`;
+
+const marketplaceFlow = `apm marketplace add ${REPO}
+apm install ${plugin.name}@zava-agent-config`;
+---
+<Tabs syncKey="install-flavor">
+  <TabItem label="apm.yml pin (recommended)">
+    <p>
+      Add to your service repo's <code>apm.yml</code>. Pinned to
+      <code>{TAG}</code> so consumers are reproducible.
+    </p>
+    <Code code={directPin} lang="yaml" />
+    <p>Then in CI / locally:</p>
+    <Code code={'apm install\napm audit --ci'} lang="bash" />
+  </TabItem>
+
+  <TabItem label="One-shot CLI">
+    <p>
+      Install directly from the org/repo path. Useful for one-off experiments.
+    </p>
+    <Code code={oneShot} lang="bash" />
+  </TabItem>
+
+  <TabItem label="Marketplace">
+    <p>
+      Register the marketplace once, then install any package by short name.
+      See the
+      {' '}<a href="https://microsoft.github.io/apm/guides/marketplaces/#register-a-marketplace">APM marketplace guide</a>.
+    </p>
+    <Code code={marketplaceFlow} lang="bash" />
+  </TabItem>
+</Tabs>

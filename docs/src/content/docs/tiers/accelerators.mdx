@@ -1,0 +1,13 @@
+---
+title: Accelerators
+description: Episodic, opt-in plugins. Pin during a planned migration, remove afterwards.
+---
+
+import PluginGrid from '../../../components/PluginGrid.astro';
+
+Accelerators don't map to a single SDLC phase. Their value is **bursty** — you
+pin them during a planned migration and remove them once the migration
+completes. Leaving an unused accelerator pinned isn't dangerous, but it
+muddies the "what is this repo asking the agent to do today" signal.
+
+<PluginGrid tier="accelerator" />

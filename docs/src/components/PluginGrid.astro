@@ -1,0 +1,18 @@
+---
+import { plugins } from '../data/plugins';
+import PluginCard from './PluginCard.astro';
+const { tier, phase } = Astro.props as {
+  tier?: 'foundation' | 'phase' | 'accelerator';
+  phase?: string;
+};
+let list = plugins;
+if (tier)  list = list.filter((p) => p.tier === tier);
+if (phase) list = list.filter((p) => p.phase === phase);
+---
+{list.length === 0 ? (
+  <p><em>No plugins ship for this scope yet — roadmap.</em></p>
+) : (
+  <div class="catalog-grid">
+    {list.map((p) => <PluginCard plugin={p} />)}
+  </div>
+)}

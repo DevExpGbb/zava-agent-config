@@ -1,0 +1,56 @@
+---
+title: Quick start
+description: Install your first plugin from the Zava marketplace in under a minute.
+---
+
+import { LinkCard } from '@astrojs/starlight/components';
+import PolicyBanner from '../../components/PolicyBanner.astro';
+
+<PolicyBanner />
+
+## 1. Install the APM CLI
+
+If you haven't already — see the
+[APM quick start](https://microsoft.github.io/apm/getting-started/quick-start/).
+
+## 2. Pin the plugins you need in `apm.yml`
+
+Pin `secure-baseline` (mandatory) plus the phase kits your repo exercises.
+Pinned to the current marketplace tag so installs are reproducible.
+
+```yaml
+# zava-storefront/apm.yml
+dependencies:
+  apm:
+    - DevExpGbb/zava-agent-config/plugins/secure-baseline#v6.1.0
+    - DevExpGbb/zava-agent-config/plugins/code-kit#v6.1.0
+    - DevExpGbb/zava-agent-config/plugins/review-kit#v6.1.0
+    - DevExpGbb/zava-agent-config/plugins/release-kit#v6.1.0
+```
+
+## 3. Install (locally and in CI)
+
+```bash
+apm install
+apm audit --ci
+```
+
+## That's it
+
+Your repo now inherits the pinned plugins' skills, personas and instructions.
+Layered service-local instructions in your own `.apm/` always win over
+inherited ones.
+
+## Other ways to install
+
+<LinkCard
+  title="Install patterns"
+  description="apm.yml pinning vs. one-shot CLI vs. registering the marketplace."
+  href="/zava-agent-config/install/"
+/>
+
+<LinkCard
+  title="Browse the catalog"
+  description="All plugins, grouped by SDLC phase and tier."
+  href="/zava-agent-config/catalog/"
+/>
