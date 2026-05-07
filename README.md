@@ -1,5 +1,7 @@
 # zava-agent-config
 
+> **Part of the [Zava Workshop Kit](https://github.com/DevExpGbb/zava-workshop-kit)** — this is the marketplace of Agent Skills + APM kits used by the workshop bundle. To deploy the full bundle into your org, start at the kit.
+
 **Central agent configuration marketplace for Zava Engineering.** Every Zava service repo (storefront, checkout, platform, …) pins one or more plugins from this package via `apm.yml`, so a single change here propagates to every developer's IDE, every PR, and every Coding Agent run across the org.
 
 > Part of the joint Microsoft + GitHub Agentic SDLC Demo Platform. See [`PLATFORM.md`](https://github.com/DevExpGbb/agentic-sdlc-ref/blob/main/PLATFORM.md) for the full reference and [`delivery/lloyds-ph1-delivery-plan.md`](https://github.com/DevExpGbb/agentic-sdlc-ref/blob/main/delivery/lloyds-ph1-delivery-plan.md) for the customer-facing workshop slice.
