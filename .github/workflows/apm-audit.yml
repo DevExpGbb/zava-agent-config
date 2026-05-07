@@ -63,17 +63,32 @@ jobs:
       # gap: `--policy org` resolves the consumer org's apm-policy.yml from
       # GitHub (DevExpGbb/.github/apm-policy.yml in our case) and `--ci`
       # makes block-enforcement violations exit non-zero.
-      - name: Enforce org APM policy
+      # Detect repo-level override. apm policy supports tighten-only override
+      # layering via `extends: org` in a repo apm-policy.yml. When present,
+      # use the repo file as policy source so the audit gates on the EFFECTIVE
+      # policy (org ∪ repo override). Falls back to `--policy org` otherwise.
+      - name: Detect repo policy override
+        id: policy
+        run: |
+          if [ -f apm-policy.yml ]; then
+            echo "source=./apm-policy.yml" >> "$GITHUB_OUTPUT"
+            echo "::notice::Using repo override apm-policy.yml (layered with org via extends)."
+          else
+            echo "source=org" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Enforce APM policy (org + repo override)
         if: steps.detect.outputs.has_deps == 'true'
         env:
           GITHUB_APM_PAT: ${{ github.token }}
           APM_FAIL_ON_WARN: ${{ inputs.fail-on-warn }}
+          POLICY_SOURCE: ${{ steps.policy.outputs.source }}
         run: |
           set -e
           if [ "$APM_FAIL_ON_WARN" = "true" ]; then
-            apm audit --ci --policy org --fail-on-warn
+            apm audit --ci --policy "$POLICY_SOURCE" --fail-on-warn
           else
-            apm audit --ci --policy org
+            apm audit --ci --policy "$POLICY_SOURCE"
           fi
 
       - name: Summarize on PR
