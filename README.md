@@ -8,70 +8,89 @@
 
 ## How the kits compose
 
+The marketplace is a 3-tier taxonomy that mirrors the [PLATFORM.md SDLC ribbon](https://github.com/DevExpGbb/agentic-sdlc-ref/blob/main/PLATFORM.md#2-the-agentic-sdlc-ribbon). **Phase kits** compound in lockstep with developer flow (one per phase). The **cross-cutting baseline** is a foundation underlay every consumer pins explicitly. **Accelerators** are episodic, opt-in plugins that don't map to a single phase (framework migrations, large refactors).
+
 ```mermaid
 flowchart TB
-    subgraph SDLC["AGENTIC SDLC  ·  the consumer team's compounding layer"]
+    subgraph RIBBON["SDLC RIBBON  ·  consumer team's compounding spine  ·  PLATFORM.md §2"]
         direction LR
-        P1[IDEATE]
-        P2[CODE]
-        P3[REVIEW]
-        P4[RELEASE]
-        P5[OPERATE]
+        P1[IDEATE] --> P2[PLAN] --> P3[CODE] --> P4[BUILD] --> P5[TEST] --> P6[REVIEW] --> P7[RELEASE] --> P8[OPERATE]
     end
 
-    subgraph KITS["Phase kits  ·  one per SDLC stage, independently versioned"]
+    subgraph KITS["PHASE KITS  ·  one per covered phase  ·  independently versioned"]
         direction LR
-        K1["<b>ideate-kit</b><br/>meeting-to-issue<br/><i>skill</i>"]
-        K2["<b>code-kit</b><br/>architect<br/><i>persona</i>"]
-        K3["<b>review-kit</b><br/>panel-review<br/><i>skill</i>"]
-        K4["<b>release-kit</b><br/>ci-cd-golden-paths<br/><i>instructions</i>"]
-        K5["<b>operate-kit</b><br/>incident-to-pr<br/><i>skill</i>"]
+        K1["ideate-kit<br/><i>meeting-to-issue (skill)</i>"]
+        K3["code-kit<br/><i>architect (persona)</i>"]
+        K6["review-kit<br/><i>panel-review (skill)</i>"]
+        K7["release-kit<br/><i>ci-cd-golden-paths (instructions)</i>"]
+        K8["operate-kit<br/><i>incident-to-pr (skill)</i>"]
     end
 
-    subgraph COMMON["Common substrate  ·  shared instructions + personas, applied across every phase"]
+    subgraph FOUND["FOUNDATION  ·  cross-cutting baseline  ·  every consumer pins explicitly (no transitive shortcut)"]
         direction LR
-        CB1["<b>secure-baseline</b><br/>secure-coding<br/><i>instructions</i>"]
-        CB2["<b>secure-baseline</b><br/>docs-style<br/><i>instructions</i>"]
-        CB3["<b>secure-baseline</b><br/>security<br/><i>persona</i>"]
+        BASE["secure-baseline<br/><i>secure-coding + docs-style instructions  ·  security persona</i>"]
+    end
+
+    subgraph ACCEL["ACCELERATORS  ·  episodic, opt-in  ·  not tied to a single phase"]
+        direction TB
+        ACC1["modernize-kit<br/><i>framework-modernizer (skill)<br/>nextjs-modernizer (skill)</i>"]
     end
 
     P1 --> K1
-    P2 --> K2
     P3 --> K3
-    P4 --> K4
-    P5 --> K5
+    P6 --> K6
+    P7 --> K7
+    P8 --> K8
 
-    SDLC -.->|underpins every phase| COMMON
+    KITS -. underpinned by .-> FOUND
+    KITS -. paired with .-> ACCEL
 
     classDef phase fill:#9eff66,stroke:#9eff66,color:#1a1f3a,font-weight:bold
+    classDef gap fill:#1a1f3a,stroke:#3d4560,color:#6a7290,stroke-dasharray:3 3
     classDef kit fill:#1a1f3a,stroke:#9eff66,stroke-width:2px,color:#f5f1e8
     classDef baseline fill:#1a1f3a,stroke:#c9a36b,stroke-width:2px,color:#f5f1e8
+    classDef accelerator fill:#1a1f3a,stroke:#e89a4a,stroke-width:2px,color:#f5f1e8
 
-    class P1,P2,P3,P4,P5 phase
-    class K1,K2,K3,K4,K5 kit
-    class CB1,CB2,CB3 baseline
+    class P1,P3,P6,P7,P8 phase
+    class P2,P4,P5 gap
+    class K1,K3,K6,K7,K8 kit
+    class BASE baseline
+    class ACC1 accelerator
 
-    style SDLC fill:#0f1428,stroke:#3d4560,color:#9eff66
+    style RIBBON fill:#0f1428,stroke:#3d4560,color:#9eff66
     style KITS fill:#0f1428,stroke:#3d4560,color:#f5f1e8
-    style COMMON fill:#1a1f3a,stroke:#c9a36b,color:#c9a36b
+    style FOUND fill:#1a1f3a,stroke:#c9a36b,color:#c9a36b
+    style ACCEL fill:#1a1f3a,stroke:#e89a4a,color:#e89a4a
 ```
 
-> *Modular packages. Composable agent behaviour.* — One kit per SDLC phase, plus a common substrate of shared instructions and personas (today: `secure-baseline`; tomorrow: more). Each kit is independently versioned, pinned by consumers in `apm.yml`, audited every PR, and distributed as signed tarballs (see [Governance](#governance)).
+**Reading the diagram.** Solid green phases have a kit shipping today; dashed phases (`PLAN`, `BUILD`, `TEST`) are roadmap — kits land additively as content matures, no breaking re-pins for consumers. The foundation (`secure-baseline`) sits *under* the phase kits because it is a security floor, not a phase tool — every consumer declares it explicitly so a `grep secure-baseline apm.yml` proves the floor is in force. Accelerators sit *beside* the phase row because their value is bursty (you run them once per migration), unlike phase kits which compound on every PR.
+
+> *Modular packages. Composable agent behaviour.* — Each plugin is independently versioned, pinned by consumers in `apm.yml`, audited every PR, and distributed as signed tarballs (see [Governance](#governance)). Accelerator content lands in **v6.0.0**.
 
 ## What's in here (v5.0.1)
 
-A 6-plugin APM marketplace aligned to the [PLATFORM.md §6.1](https://github.com/DevExpGbb/agentic-sdlc-ref/blob/main/PLATFORM.md#61-layer-a--the-sdlc-ribbon) SDLC ribbon:
+A 6-plugin APM marketplace aligned to the [PLATFORM.md §6.1](https://github.com/DevExpGbb/agentic-sdlc-ref/blob/main/PLATFORM.md#61-layer-a--the-sdlc-ribbon) SDLC ribbon. Three categories per the taxonomy above:
 
-| Plugin | SDLC stage | Source |
+**Foundation (cross-cutting)**
+| Plugin | What's inside |
+|---|---|
+| [`secure-baseline`](plugins/secure-baseline/) | secure-coding + docs-style instructions; security persona. Every consumer pins this explicitly — see [Consumption patterns](CATALOG.md#consumption-patterns). |
+
+**Phase kits (one per covered SDLC phase)**
+| Plugin | SDLC phase | Source |
 |---|---|---|
-| [`secure-baseline`](plugins/secure-baseline/) | cross-cutting | secure-coding + docs-style instructions; security persona |
 | [`ideate-kit`](plugins/ideate-kit/) | IDEATE | `meeting-to-issue` skill |
 | [`code-kit`](plugins/code-kit/) | CODE | architect persona (design-intent guidance during authoring) |
 | [`review-kit`](plugins/review-kit/) | REVIEW | `panel-review` skill (pre-PR self-review by author) |
 | [`release-kit`](plugins/release-kit/) | RELEASE | `ci-cd-golden-paths` instructions |
 | [`operate-kit`](plugins/operate-kit/) | OPERATE | `incident-to-pr` skill |
 
-See [`CATALOG.md`](CATALOG.md) for the full index, migration table from v1.0.x, and consumer pin recipes.
+**Accelerators (episodic, opt-in)**
+| Plugin | Lands in |
+|---|---|
+| `modernize-kit` | v6.0.0 — framework migration patterns (Express 4→5, Next 14→15, …) |
+
+See [`CATALOG.md`](CATALOG.md) for the full index, migration table from v1.0.x, [consumption patterns](CATALOG.md#consumption-patterns), and consumer pin recipes.
 
 ## How a Zava service repo consumes this
 

@@ -6,14 +6,15 @@ This is the human-readable index of every plugin shipped by the `zava-agent-conf
 
 ## Marketplace overview
 
-| Plugin | SDLC stage | What's inside | Pin if you… |
+| Plugin | Tier | What's inside | Pin if you… |
 |---|---|---|---|
-| [`secure-baseline`](plugins/secure-baseline/) | cross-cutting | secure-coding-base + docs-style-guide instructions; security persona | …ship anything. Mandatory baseline for every Zava service. |
-| [`ideate-kit`](plugins/ideate-kit/) | IDEATE | `meeting-to-issue` skill | …turn unstructured input (transcripts, voice notes, tickets) into well-formed GitHub issues. |
-| [`code-kit`](plugins/code-kit/) | CODE | architect persona | …want design-intent guidance during local authoring. |
-| [`review-kit`](plugins/review-kit/) | REVIEW | `panel-review` skill | …want a multi-perspective (architect + security) self-review of staged changes before you push. |
-| [`release-kit`](plugins/release-kit/) | RELEASE | `ci-cd-golden-paths` instructions | …operate any CI/CD pipeline (reusable workflows, deploy gates, env promotion). |
-| [`operate-kit`](plugins/operate-kit/) | OPERATE | `incident-to-pr` skill | …connect Azure SRE Agent findings to scoped remediation PRs. |
+| [`secure-baseline`](plugins/secure-baseline/) | **Foundation** | secure-coding-base + docs-style-guide instructions; security persona | …ship anything. **Mandatory** explicit pin for every Zava service. See [Consumption patterns](#consumption-patterns) for why this is never transitive. |
+| [`ideate-kit`](plugins/ideate-kit/) | Phase kit (IDEATE) | `meeting-to-issue` skill | …turn unstructured input (transcripts, voice notes, tickets) into well-formed GitHub issues. |
+| [`code-kit`](plugins/code-kit/) | Phase kit (CODE) | architect persona | …want design-intent guidance during local authoring. |
+| [`review-kit`](plugins/review-kit/) | Phase kit (REVIEW) | `panel-review` skill | …want a multi-perspective (architect + security) self-review of staged changes before you push. |
+| [`release-kit`](plugins/release-kit/) | Phase kit (RELEASE) | `ci-cd-golden-paths` instructions | …operate any CI/CD pipeline (reusable workflows, deploy gates, env promotion). |
+| [`operate-kit`](plugins/operate-kit/) | Phase kit (OPERATE) | `incident-to-pr` skill | …connect Azure SRE Agent findings to scoped remediation PRs. |
+| `modernize-kit` *(v6.0.0+)* | Accelerator | framework-migration skills (Express 4→5, Next 14→15, …) | …have a planned framework migration. Episodic, opt-in. |
 
 > Future kits (`plan-kit`, `build-kit`, `test-kit`) will land in 5.x as content is authored against the remaining ribbon phases. The marketplace owner spec is fixed; new kits are additive and non-breaking.
 
@@ -46,6 +47,34 @@ apm install secure-baseline@zava-agent-config code-kit@zava-agent-config
 apm install
 apm audit --ci --policy ./apm-policy.yaml
 ```
+
+## Consumption patterns
+
+The marketplace is a **3-tier taxonomy** (see the README diagram). Consumption rules differ per tier:
+
+### Foundation: `secure-baseline` is **always pinned explicitly**
+
+Every consumer redeclares `secure-baseline` in its own `apm.yml`. Phase kits do **not** declare `secure-baseline` as a transitive dep (every phase kit ships with `dependencies.apm: []`). This is intentional.
+
+**Why no transitive shortcut?** APM resolves transitive conflicts on a *first-wins* basis (see [`apm_resolver.py:478`](https://github.com/microsoft/apm/blob/main/src/apm_cli/deps/apm_resolver.py)). For a tool dependency that is acceptable; for a **security floor** it is not. If two phase kits transitively pulled `secure-baseline` at different refs, the resolver would pick one silently, downgrading or upgrading the secure-coding instructions without an audit trail. Forcing every consumer to declare the floor explicitly means:
+
+- A `grep -r secure-baseline */apm.yml` proves coverage across the org.
+- Renovate / Dependabot bumps are visible in the consumer's PR diff, not buried in a transitive lockfile change.
+- A CI presence check (see [`apm-baseline-check.yml`](.github/workflows/apm-baseline-check.yml)) can fail the build if the floor is missing — uniform across consumers because the pin is in a uniform location.
+
+> **Anti-pattern.** Do **not** add `secure-baseline` to any phase kit's `dependencies.apm`. The audit trail becomes ambiguous and a future kit upgrade can silently drift the security floor. PRs that introduce this should be rejected in review.
+
+### Phase kits: pin **only** the phases your repo actually exercises
+
+Pin `ideate-kit` only if your repo receives unstructured input that becomes issues. Pin `operate-kit` only if you wire Azure SRE Agent. Don't pin kits you don't use — `apm install` is fast but compile-time scope hygiene matters.
+
+### Accelerators: pin **on demand**, not by default
+
+`modernize-kit` (v6.0.0+) is opt-in. Consumers add it when they have a planned framework migration (Express 4→5, Next 14→15, …) and remove it once the migration completes — accelerators are **episodic**, not compounding. Leaving an unused accelerator pinned isn't dangerous, but it muddies the "what is this repo asking the agent to do today" signal.
+
+### Future direction: `peer_dependencies`
+
+The right long-term shape is a `peer_dependencies` (or `peerDependencies`) field on phase kits that **declares** the security-floor expectation and **errors at install** if the consumer hasn't pinned a compatible `secure-baseline`. This is the npm-ecosystem precedent. Tracked in [microsoft/apm#1196](https://github.com/microsoft/apm/issues/1196).
 
 ## Policy
 
