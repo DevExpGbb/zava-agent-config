@@ -1,0 +1,10 @@
+{
+  "name": "express4-app-fixture",
+  "version": "0.0.1",
+  "private": true,
+  "description": "Deliberate Express 4 fixture with 8 known breaking patterns (3 SAFE, 3 AUTOFIX, 2 MANUAL). Used by framework-modernizer eval runner.",
+  "main": "server.js",
+  "dependencies": {
+    "express": "^4.18.2"
+  }
+}

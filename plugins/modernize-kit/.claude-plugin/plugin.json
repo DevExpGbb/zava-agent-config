@@ -1,0 +1,20 @@
+{
+  "name": "modernize-kit",
+  "version": "6.0.0",
+  "description": "ACCELERATOR \u2014 framework / runtime modernization. Episodic, opt-in skills that audit a codebase against an X\u2192Y framework migration, classify findings (SAFE / AUTOFIX / MANUAL), and emit a phased migration plan.",
+  "author": {
+    "name": "Zava Engineering"
+  },
+  "license": "MIT",
+  "repository": "https://github.com/DevExpGbb/zava-agent-config",
+  "homepage": "https://github.com/DevExpGbb/zava-agent-config/tree/main/plugins/modernize-kit",
+  "keywords": [
+    "agentic-sdlc",
+    "apm",
+    "zava",
+    "accelerator",
+    "modernization",
+    "migration",
+    "framework-upgrade"
+  ]
+}

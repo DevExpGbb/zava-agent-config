@@ -1,0 +1,10 @@
+# Expected findings on the fixture
+# Format: BC-ID<TAB>file<TAB>line
+BC-201	server.js	8
+BC-202	server.js	11
+BC-001	server.js	14
+BC-006	server.js	20
+BC-007	server.js	25
+BC-002	server.js	30
+BC-101	server.js	34
+BC-102	server.js	39
