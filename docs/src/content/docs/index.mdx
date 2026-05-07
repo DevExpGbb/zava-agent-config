@@ -1,0 +1,51 @@
+---
+title: Zava IDP — Agentic SDLC marketplace
+description: Internal Developer Portal for the Zava Agentic SDLC. Browse the catalog of skills, personas and instructions every Zava service repo pins via apm.yml.
+template: splash
+hero:
+  tagline: The marketplace of agent skills, personas and instructions every Zava service repo pins via <code>apm.yml</code>. One change here propagates to every IDE, every PR, every coding-agent run.
+  image:
+    file: ../../assets/zava.svg
+  actions:
+    - text: Browse the catalog
+      link: /catalog/
+      icon: right-arrow
+      variant: primary
+    - text: Quick start
+      link: /quick-start/
+      icon: rocket
+    - text: View on GitHub
+      link: https://github.com/DevExpGbb/zava-agent-config
+      icon: external
+      variant: minimal
+---
+
+import { Card, CardGrid, LinkCard } from '@astrojs/starlight/components';
+import PolicyBanner from '../../components/PolicyBanner.astro';
+import SDLCRibbon from '../../components/SDLCRibbon.astro';
+import PluginGrid from '../../components/PluginGrid.astro';
+import { VERSION } from '../../data/plugins';
+
+<PolicyBanner />
+
+## The SDLC ribbon — pick a phase
+
+Filled cells ship a kit today. Dashed cells are roadmap (kits land additively, no breaking re-pins).
+
+<SDLCRibbon />
+
+## Foundation — every consumer pins this
+
+<PluginGrid tier="foundation" />
+
+## Accelerators — episodic, opt-in
+
+<PluginGrid tier="accelerator" />
+
+## Phase kits
+
+<PluginGrid tier="phase" />
+
+---
+
+<small>Marketplace version <code>v{VERSION}</code> · tag pattern <code>v&#123;version&#125;</code> · pinned by every consumer.</small>

@@ -1,0 +1,62 @@
+---
+title: operate-kit
+description: OPERATE stage — incident-to-PR skill (Azure SRE Agent finding → scoped remediation pull request).
+---
+
+import { LinkCard, Card, CardGrid } from '@astrojs/starlight/components';
+import InstallSnippets from '../../../components/InstallSnippets.astro';
+import PolicyBanner from '../../../components/PolicyBanner.astro';
+import { getPlugin, REPO_URL, TIER_LABEL } from '../../../data/plugins';
+
+export const plugin = getPlugin('operate-kit');
+export const tierLabel = TIER_LABEL[plugin.tier];
+
+<p>
+  <span class="tier-pill" data-tier={plugin.tier}>{tierLabel}</span>
+  {plugin.phase && <span class="phase-pill">{plugin.phase}</span>}
+  <span class="version-pill">v{plugin.version}</span>
+</p>
+
+{plugin.description}
+
+<PolicyBanner />
+
+## What's inside
+
+<ul>
+  {plugin.primitives.map((prim) => (
+    <li>
+      <strong>{prim.name}</strong> — <code>{prim.kind}</code>
+      <br />
+      <small><a href={`${REPO_URL}/tree/main/${prim.path}`} rel="noopener"><code>{prim.path}</code></a></small>
+    </li>
+  ))}
+</ul>
+
+## Install
+
+<InstallSnippets plugin={plugin} />
+
+## Pin if you…
+
+{plugin.pinIf}
+
+{plugin.pairsWith.length > 0 && (
+  <>
+    <h2>Pairs with</h2>
+    <CardGrid>
+      {plugin.pairsWith.map((id) => (
+        <Card title={id}>
+          <a href={`/zava-agent-config/catalog/${id}/`}>View {id} →</a>
+        </Card>
+      ))}
+    </CardGrid>
+  </>
+)}
+
+<LinkCard
+  title="View source on GitHub"
+  description={`Browse ${plugin.source}/ on the repo.`}
+  href={`${REPO_URL}/tree/main/${plugin.source}`}
+  target="_blank"
+/>

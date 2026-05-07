@@ -1,0 +1,67 @@
+---
+title: Install patterns
+description: Three supported ways to install Zava marketplace plugins — apm.yml pin, one-shot CLI, or marketplace registration.
+---
+
+import { Code, Tabs, TabItem, LinkCard } from '@astrojs/starlight/components';
+import { REPO, TAG, APM_MARKETPLACE_DOCS_URL, APM_QUICKSTART_URL } from '../../data/plugins';
+
+Three supported install flows. **`apm.yml` pinning is the recommended path for
+service repos** — it's the only flow CI can audit deterministically.
+
+## 1. Pin in `apm.yml` (recommended)
+
+Pin individual plugins to the current marketplace tag (`v6.1.0` ships today).
+Reproducible across every developer's IDE, every PR check, and every
+coding-agent run.
+
+<Code lang="yaml" code={`# <service-repo>/apm.yml
+dependencies:
+  apm:
+    - ${REPO}/plugins/secure-baseline#${TAG}
+    - ${REPO}/plugins/code-kit#${TAG}
+    - ${REPO}/plugins/review-kit#${TAG}
+    - ${REPO}/plugins/release-kit#${TAG}
+    # operate-kit, ideate-kit not needed → not pinned
+`} />
+
+Then:
+
+<Code lang="bash" code={'apm install\napm audit --ci'} />
+
+[APM quick start →]({APM_QUICKSTART_URL})
+
+## 2. One-shot CLI install
+
+Install a plugin directly from the org/repo path. Good for spikes &
+experiments; **not** the path for production service repos because the pin
+isn't recorded anywhere.
+
+<Code lang="bash" code={`apm install ${REPO}/plugins/code-kit#${TAG}`} />
+
+## 3. Register the marketplace, then install by name
+
+Register `zava-agent-config` as a marketplace once, then install any package
+by short name. Useful when you'll consume several packages and want compact
+commands.
+
+<Code lang="bash" code={`apm marketplace add ${REPO}
+apm install code-kit@zava-agent-config
+apm install review-kit@zava-agent-config`} />
+
+Marketplace registration & install syntax is documented upstream:
+
+<LinkCard
+  title="APM marketplaces guide"
+  description="Register a marketplace · Install from a marketplace"
+  href={APM_MARKETPLACE_DOCS_URL}
+  target="_blank"
+/>
+
+## Which one should I pick?
+
+| You are…                                    | Use                       |
+| ------------------------------------------- | ------------------------- |
+| A Zava service repo (storefront, checkout…) | **`apm.yml` pin**         |
+| Trying a plugin in a throwaway sandbox      | One-shot CLI              |
+| Onboarding a new repo to the whole catalog  | Marketplace + named pins  |

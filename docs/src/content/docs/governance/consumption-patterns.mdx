@@ -1,0 +1,54 @@
+---
+title: Consumption patterns
+description: How the 3-tier marketplace is meant to be pinned by service repos.
+---
+
+import { LinkCard } from '@astrojs/starlight/components';
+import PolicyBanner from '../../../components/PolicyBanner.astro';
+
+<PolicyBanner />
+
+The marketplace is a 3-tier taxonomy. Consumption rules differ per tier.
+
+## Foundation: `secure-baseline` is **always pinned explicitly**
+
+Every consumer redeclares `secure-baseline` in its own `apm.yml`. Phase kits
+do **not** declare `secure-baseline` as a transitive dep
+(every phase kit ships with `dependencies.apm: []`). This is intentional.
+
+**Why no transitive shortcut?** APM resolves transitive conflicts on a
+*first-wins* basis. For a tool dependency that is acceptable; for a
+**security floor** it is not. If two phase kits transitively pulled
+`secure-baseline` at different refs, the resolver would pick one silently,
+downgrading or upgrading the secure-coding instructions without an audit
+trail. Forcing every consumer to declare the floor explicitly means:
+
+- A `grep -r secure-baseline */apm.yml` proves coverage across the org.
+- Renovate / Dependabot bumps land in the consumer's PR diff, not buried in a
+  transitive lockfile change.
+- A CI presence check can fail the build if the floor is missing — uniform
+  across consumers because the pin is in a uniform location.
+
+:::caution[Anti-pattern]
+Do **not** add `secure-baseline` to any phase kit's `dependencies.apm`. The
+audit trail becomes ambiguous and a future kit upgrade can silently drift the
+security floor. PRs that introduce this should be rejected in review.
+:::
+
+## Phase kits: pin only the phases your repo actually exercises
+
+Pin `ideate-kit` only if your repo receives unstructured input that becomes
+issues. Pin `operate-kit` only if you wire Azure SRE Agent. Don't pin kits
+you don't use — `apm install` is fast but compile-time scope hygiene matters.
+
+## Accelerators: pin on demand, not by default
+
+`modernize-kit` is opt-in — consumers add it when they have a planned
+framework migration and remove it once the migration completes; accelerators
+are **episodic**, not compounding.
+
+<LinkCard
+  title="Policy & CI"
+  description="What apm-policy.yml enforces and how it ships from DevExpGbb/.github."
+  href="/zava-agent-config/governance/policy/"
+/>

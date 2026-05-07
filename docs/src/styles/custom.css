@@ -1,0 +1,118 @@
+/* Zava IDP — Starlight theming.
+   Brand: deep indigo + warm amber accent.                               */
+
+:root {
+  --sl-font: 'Inter', ui-sans-serif, system-ui, -apple-system, 'Segoe UI',
+    Roboto, Helvetica, Arial, sans-serif;
+  --sl-font-mono: ui-monospace, 'JetBrains Mono', 'SF Mono', Menlo,
+    'Cascadia Mono', Consolas, monospace;
+}
+
+:root[data-theme='dark'] {
+  --sl-color-accent-low: #1e1b4b;
+  --sl-color-accent: #818cf8;
+  --sl-color-accent-high: #c7d2fe;
+  --sl-color-bg-nav: #0b0a18;
+}
+
+:root[data-theme='light'] {
+  --sl-color-accent-low: #eef2ff;
+  --sl-color-accent: #4338ca;
+  --sl-color-accent-high: #1e1b4b;
+}
+
+.tier-pill,
+.phase-pill,
+.version-pill {
+  display: inline-block;
+  padding: 0.1rem 0.55rem;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  border: 1px solid transparent;
+  vertical-align: middle;
+  margin-right: 0.35rem;
+}
+
+.tier-pill[data-tier='foundation']    { background: #fff7d6; color: #7a5b00; border-color: #d8b95b; }
+.tier-pill[data-tier='phase']         { background: #d4ecd5; color: #15532b; border-color: #5fa56a; }
+.tier-pill[data-tier='accelerator']   { background: #cfe3f7; color: #163d6c; border-color: #5d92cf; }
+
+.phase-pill   { background: #ede4f7; color: #3b1d6b; border-color: #a98ad6; }
+.version-pill { background: #1f2937; color: #e5e7eb; border-color: #374151; }
+
+:root[data-theme='dark'] .tier-pill[data-tier='foundation']  { background: #3a2d05; color: #fde68a; border-color: #a07c1a; }
+:root[data-theme='dark'] .tier-pill[data-tier='phase']       { background: #0f3320; color: #bbf7d0; border-color: #2d7a3a; }
+:root[data-theme='dark'] .tier-pill[data-tier='accelerator'] { background: #0d2545; color: #bfdbfe; border-color: #2563eb; }
+:root[data-theme='dark'] .phase-pill                         { background: #2a1854; color: #ddd6fe; border-color: #7c3aed; }
+
+/* Catalog grid cards */
+.catalog-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1rem;
+  margin-top: 1.25rem;
+}
+
+.catalog-card {
+  display: block;
+  padding: 1rem 1.1rem;
+  border: 1px solid var(--sl-color-gray-5);
+  border-radius: 12px;
+  background: var(--sl-color-bg-sidebar);
+  text-decoration: none !important;
+  color: inherit;
+  transition: transform 120ms ease, border-color 120ms ease,
+    box-shadow 120ms ease;
+}
+.catalog-card:hover {
+  transform: translateY(-2px);
+  border-color: var(--sl-color-accent);
+  box-shadow: 0 6px 20px -10px var(--sl-color-accent);
+}
+.catalog-card h3 {
+  margin: 0 0 0.35rem;
+  font-size: 1.05rem;
+}
+.catalog-card p {
+  margin: 0.5rem 0 0;
+  font-size: 0.88rem;
+  color: var(--sl-color-gray-2);
+}
+
+/* SDLC ribbon on landing */
+.sdlc-ribbon {
+  display: grid;
+  grid-template-columns: repeat(8, minmax(0, 1fr));
+  gap: 0.4rem;
+  margin: 1.5rem 0 0.5rem;
+}
+.sdlc-cell {
+  text-align: center;
+  padding: 0.6rem 0.3rem;
+  border-radius: 10px;
+  border: 1px solid var(--sl-color-gray-5);
+  background: var(--sl-color-bg-sidebar);
+  font-size: 0.78rem;
+  text-decoration: none !important;
+  color: inherit;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  transition: border-color 120ms ease, transform 120ms ease;
+}
+.sdlc-cell:hover { transform: translateY(-1px); border-color: var(--sl-color-accent); }
+.sdlc-cell[data-status='covered'] { border-color: #5fa56a; }
+.sdlc-cell[data-status='roadmap'] { border-style: dashed; opacity: 0.7; }
+.sdlc-cell .sdlc-name {
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+.sdlc-cell .sdlc-count { font-size: 0.7rem; color: var(--sl-color-gray-2); }
+
+@media (max-width: 800px) {
+  .sdlc-ribbon { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+}
