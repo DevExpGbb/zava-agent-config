@@ -1,5 +1,5 @@
 name: zava-agent-config
-version: 6.0.0
+version: 6.1.0
 description: >-
   Zava Engineering — central agent configuration marketplace. Seven plugins in
   three tiers: cross-cutting baseline (secure-baseline) + five SDLC phase kits
@@ -60,4 +60,4 @@ marketplace:
       description: OPERATE stage — incident-to-PR skill (Azure SRE Agent finding → scoped remediation pull request).
     - name: modernize-kit
       source: ./plugins/modernize-kit
-      description: ACCELERATOR — framework / runtime modernization. Episodic, opt-in skills (Express 4→5 ships in v6.0.0; Next, React, Spring, Java on the roadmap). Pin only when running a migration. NOT a phase kit — does not compound.
+      description: ACCELERATOR — framework / runtime modernization. Episodic, opt-in skills (framework-modernizer Express 4→5 in v6.0.0; nextjs-modernizer Next 14→15 in v6.1.0; React, Spring, Java on the roadmap). Pin only when running a migration. NOT a phase kit — does not compound.

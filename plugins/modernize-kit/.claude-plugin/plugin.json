@@ -1,6 +1,6 @@
 {
   "name": "modernize-kit",
-  "version": "6.0.0",
+  "version": "6.1.0",
   "description": "ACCELERATOR \u2014 framework / runtime modernization. Episodic, opt-in skills that audit a codebase against an X\u2192Y framework migration, classify findings (SAFE / AUTOFIX / MANUAL), and emit a phased migration plan.",
   "author": {
     "name": "Zava Engineering"

@@ -1,6 +1,6 @@
 {
   "name": "review-kit",
-  "version": "6.0.0",
+  "version": "6.1.0",
   "description": "REVIEW phase of the Zava Agentic SDLC ribbon. Pre-PR self-review skills \u2014 multi-perspective panel review (architect + security) of staged changes, run by the author before push to surface design and security gaps before the human PR reviewer pays the tax.",
   "author": {
     "name": "Zava Engineering"
