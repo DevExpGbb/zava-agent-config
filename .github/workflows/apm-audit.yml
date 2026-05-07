@@ -2,21 +2,20 @@ name: apm-audit
 
 # Reusable workflow shipped by zava-agent-config for downstream APM consumers.
 #
-# This file is NOT meant to run on this repo's own push/PR — that's what
-# self-audit.yml is for (it adds the marketplace pack/drift check that's
-# unique to the publisher). This file exists purely as a `workflow_call`
-# artifact that consumers pin and call:
+# v5.1.0+: the reusable workflow now runs `apm audit --ci --policy org`
+# explicitly. v5.0.x called microsoft/apm-action with audit-report only,
+# which generated SARIF but did NOT enforce the org policy or fail the
+# job on violations — drift-only check, no policy gate. This regression
+# was caught during the D2 governance demo wiring (see DevExpGbb/.github
+# apm-policy.yml v2.0.0) where required-packages, dependency-denylist,
+# and unmanaged-files violations passed CI silently.
 #
 #   jobs:
 #     audit:
-#       uses: DevExpGbb/zava-agent-config/.github/workflows/apm-audit.yml@v5.0.1
+#       uses: DevExpGbb/zava-agent-config/.github/workflows/apm-audit.yml@v5.1.0
 #
 # Pinning the workflow to a tag means the consumer's audit step is part of
 # the supply chain they audit — no implicit "latest" reusable workflow.
-#
-# v5.0.1+: this workflow uses microsoft/apm-action@v1 for CLI install and
-# audit. The action handles install + audit + SARIF emission in one step
-# and auto-forwards github.token as GITHUB_APM_PAT for same-org private deps.
 
 on:
   workflow_call:
@@ -39,9 +38,6 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      # Detect whether this repo declares APM deps. If not (e.g., a marketplace-
-      # only repo with `apm: []`), audit is a no-op success and we skip
-      # apm-action entirely. apm-action expects deps to install/audit.
       - name: Detect APM dependencies
         id: detect
         run: |
@@ -53,12 +49,32 @@ jobs:
             echo "::notice::No APM dependencies declared — audit is a no-op."
           fi
 
-      - name: Install + audit via microsoft/apm-action
+      # Install + run apm install via the action. setup-only would skip install,
+      # but we WANT install to also run so policy enforcement at install time
+      # (denylist on uninstalled new deps) catches violations even before audit.
+      - name: Install APM + dependencies
         if: steps.detect.outputs.has_deps == 'true'
         uses: microsoft/apm-action@v1
         with:
-          # Default behavior: apm install + audit. SARIF + step summary auto-emitted.
           audit-report: true
+
+      # Explicit policy enforcement. The action generates SARIF but does NOT
+      # call `--ci` or `--policy` — it runs drift-only. This step closes the
+      # gap: `--policy org` resolves the consumer org's apm-policy.yml from
+      # GitHub (DevExpGbb/.github/apm-policy.yml in our case) and `--ci`
+      # makes block-enforcement violations exit non-zero.
+      - name: Enforce org APM policy
+        if: steps.detect.outputs.has_deps == 'true'
+        env:
+          GITHUB_APM_PAT: ${{ github.token }}
+          APM_FAIL_ON_WARN: ${{ inputs.fail-on-warn }}
+        run: |
+          set -e
+          if [ "$APM_FAIL_ON_WARN" = "true" ]; then
+            apm audit --ci --policy org --fail-on-warn
+          else
+            apm audit --ci --policy org
+          fi
 
       - name: Summarize on PR
         if: always() && github.event_name == 'pull_request'
@@ -67,8 +83,8 @@ jobs:
             echo "## 🛡️ APM Audit"
             echo ""
             if [ "${{ steps.detect.outputs.has_deps }}" = "true" ]; then
-              echo "Ran \`apm audit --ci\` against project policy via \`microsoft/apm-action@v1\`."
-              echo "(Org policy resolved from \`DevExpGbb/.github/apm-policy.yml\`.)"
+              echo "Ran \`apm audit --ci --policy org\` against the consumer's org policy via \`microsoft/apm-action@v1\`."
+              echo "(Org policy resolved from \`<consumer-org>/.github/apm-policy.yml\` automatically.)"
               echo ""
               echo "SARIF report uploaded by apm-action; see job logs and Code scanning tab."
             else
