@@ -10,6 +10,10 @@ description: >-
 author: Zava Engineering
 license: MIT
 
+# Zero transitive APM deps — intentional. The cross-cutting baseline
+# (secure-baseline) is NOT redeclared here so consumers cannot accidentally
+# rely on transitive resolution to satisfy their security floor. See
+# zava-agent-config CATALOG.md "Consumption patterns" for the rationale.
 dependencies:
   apm: []
 
