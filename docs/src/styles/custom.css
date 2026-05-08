@@ -116,3 +116,19 @@
 @media (max-width: 800px) {
   .sdlc-ribbon { grid-template-columns: repeat(4, minmax(0, 1fr)); }
 }
+
+/* Landing two-column layout for Foundation + Accelerators */
+.landing-two-col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+  margin-top: 2rem;
+}
+.landing-two-col > section { min-width: 0; }
+.landing-two-col > section > h2:first-child { margin-top: 0; }
+/* Inside the two-col layout each side already has limited width — collapse the
+   catalog grid to a single column so cards don't end up too narrow. */
+.landing-two-col .catalog-grid { grid-template-columns: 1fr; }
+@media (max-width: 60rem) {
+  .landing-two-col { grid-template-columns: 1fr; gap: 1rem; }
+}
