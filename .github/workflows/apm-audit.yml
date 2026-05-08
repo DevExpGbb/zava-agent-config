@@ -2,12 +2,16 @@ name: apm-audit
 
 # Reusable workflow shipped by zava-agent-config for downstream APM consumers.
 #
-# v5.1.2: switched apm-action to setup-only and removed `apm install` from
-# the audit path. Reason: install RE-DEPLOYS files from upstream, OVERWRITING
-# any in-PR tamper of a deployed managed file. That silently disabled drift
-# detection in CI (caught during D2 demo Beat 5 wiring). Audit now runs
-# directly against the contents of the PR, so content-integrity / drift /
-# unmanaged-files all see what the PR author committed.
+# v5.1.2: switched apm-action to setup-only + added --no-drift. Reason:
+# (1) `apm install` re-deploys files from upstream, OVERWRITING any in-PR
+#     tamper of a deployed managed file -- silently disabled hash checks
+#     in CI (caught during D2 demo Beat 5 wiring).
+# (2) the `drift` check itself requires a populated install cache and
+#     ABORTS on cache miss when install hasn't run -- breaking every
+#     audit. --no-drift skips that replay; `content-integrity` still
+#     checks deployed-file hashes against the lockfile (cache-free) and
+#     catches tamper. Net coverage: same set of file-tamper attacks
+#     blocked, plus all policy checks (require / deny / unmanaged_files).
 #
 # v5.1.1: auto-detect repo apm-policy.yml override and use it as policy
 # source so `extends: org` actually layers (vs --policy org which loads
@@ -81,9 +85,9 @@ jobs:
         run: |
           set -euo pipefail
           if [ "$APM_FAIL_ON_WARN" = "true" ]; then
-            apm audit --ci --policy "$POLICY_SOURCE" --fail-on-warning
+            apm audit --ci --no-drift --policy "$POLICY_SOURCE" --fail-on-warning
           else
-            apm audit --ci --policy "$POLICY_SOURCE"
+            apm audit --ci --no-drift --policy "$POLICY_SOURCE"
           fi
 
       - name: Step summary
