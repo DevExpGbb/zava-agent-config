@@ -1,57 +1,188 @@
 ---
-title: Policy & CI
-description: The org-wide APM policy that gates every Zava PR, where it lives, and how to learn more.
+title: Policy in force at Zava
+description: The org-wide APM policy that governs every Zava repo — what it actually means for you, what gets blocked, and how to request an exception.
 ---
 
-import { LinkCard, Code, Card, CardGrid } from '@astrojs/starlight/components';
-import { POLICY_FILE_URL, POLICY_DOCS_URL, POLICY_REPO } from '../../../data/plugins';
+import { Card, CardGrid, LinkCard, Tabs, TabItem, Code, Aside } from '@astrojs/starlight/components';
+import PolicyAtAGlance from '../../../components/PolicyAtAGlance.astro';
+import PolicyImpactTable from '../../../components/PolicyImpactTable.astro';
+import {
+  policy,
+  policyYaml,
+  POLICY_BLOB_URL,
+  POLICY_RAW_URL,
+  POLICY_REPO,
+  POLICY_REFERENCE_URL,
+  POLICY_CI_GUIDE_URL,
+  POLICY_EXCEPTION_NEW_ISSUE_URL,
+} from '../../../data/policy';
 
-A single policy file governs every Zava repo. You don't copy it — your repo
-inherits it automatically through GitHub's
-[`.github` default-config pattern](https://docs.github.com/en/communities/setting-up-your-project-for-healthy-contributions/customizing-your-projects-default-files).
+<PolicyAtAGlance />
+
+Every repo in the `DevExpGbb` org inherits a single APM policy file. You don't
+opt in, you don't copy it — `apm install` and `apm audit --ci` discover it
+automatically through GitHub's [`.github` default-config pattern](https://docs.github.com/en/communities/setting-up-your-project-for-healthy-contributions/customizing-your-projects-default-files).
+
+This page is **rendered from the live policy** at every site build, so what
+you read here is what your CI is enforcing right now.
+
+## What gets enforced — area by area
+
+The table below reads the live policy and translates each clause into a
+concrete dev-facing impact. Severity tags map straight to what `apm audit --ci`
+will do.
+
+<PolicyImpactTable />
+
+## Required baseline: what Zava expects in every repo
+
+The policy mandates that every repo includes the
+[`secure-baseline` plugin](/zava-agent-config/catalog/secure-baseline/) in its
+`apm.yml`. That single dependency carries the org-wide secure-coding
+instructions, the docs style guide, and the security-reviewer persona that
+every PR reviewer (human or agent) loads.
 
 <CardGrid>
-  <Card title="The policy file" icon="document">
-    <a href={POLICY_FILE_URL} rel="noopener">
-      <code>{POLICY_REPO}/apm-policy.yml</code>
-    </a>
-    <p>
-      The single source of truth. Edit there to change the rules for every Zava repo.
-    </p>
-  </Card>
-  <Card title="How it's wired up" icon="setting">
-    <a href={POLICY_DOCS_URL} rel="noopener">APM CI policy setup guide ↗</a>
-    <p>
-      Upstream APM docs explaining how <code>apm audit --ci</code> discovers and applies the policy.
-    </p>
-  </Card>
+  <LinkCard
+    title="Pin secure-baseline"
+    description="The required dependency. Catalog page with 3-tab install snippet."
+    href="/zava-agent-config/catalog/secure-baseline/"
+  />
+  <LinkCard
+    title="Quick start"
+    description="Stand up a new repo from scratch with a compliant apm.yml in under a minute."
+    href="/zava-agent-config/quick-start/"
+  />
 </CardGrid>
 
-## What gates a Zava PR
+## Allowed sources & blocked packages
 
-| Gate | What it checks |
+`apm install` resolves a dependency by walking the policy's allow / deny lists
+in order — **deny always wins**. So even a repo inside an allowed org can be
+blocked if its path is on the deny list.
+
+<Tabs>
+  <TabItem label="Allowed sources">
+    {policy.dependencies?.allow?.length ? (
+      <ul>
+        {policy.dependencies.allow.map((p) => <li><code>{p}</code></li>)}
+      </ul>
+    ) : <p><em>No allow list — every source is permitted unless explicitly denied.</em></p>}
+  </TabItem>
+  <TabItem label="Explicitly blocked">
+    {policy.dependencies?.deny?.length ? (
+      <ul>
+        {policy.dependencies.deny.map((p) => <li><code>{p}</code></li>)}
+      </ul>
+    ) : <p><em>No deny list.</em></p>}
+  </TabItem>
+  <TabItem label="MCP servers — allowed">
+    {policy.mcp?.allow?.length ? (
+      <ul>
+        {policy.mcp.allow.map((p) => <li><code>{p}</code></li>)}
+      </ul>
+    ) : <p><em>No MCP allow list — every server is permitted unless explicitly denied.</em></p>}
+  </TabItem>
+</Tabs>
+
+## "Will this work?" — common scenarios
+
+| What you want to do | What happens |
 | --- | --- |
-| `apm audit --ci` (reusable workflow `.github/workflows/apm-audit.yml`) | Org-policy compliance, lockfile drift, source attribution, hidden Unicode, secret detection. |
-| Org-level **GHE ruleset** on `zava-engineering` | Marks the audit check **required for merge** — no green check, no merge. |
-| `.github/workflows/self-audit.yml` (this repo only) | Dogfood: every push runs `apm install` + `apm audit --ci` + `apm pack`. Fails the build on marketplace drift. |
+| Add `microsoft/vscode-skills/some-skill` to `apm.yml` | ✅ Allowed — `microsoft/**` is on the allow list. |
+| Add `github/awesome-copilot/plugins/azure-cloud-development` | 🚫 Blocked — explicitly on the deny list. Even though `github/**` is allowed, deny wins. |
+| Add `third-party-org/cool-thing` | 🚫 Blocked — outside the allow list. <a href={POLICY_EXCEPTION_NEW_ISSUE_URL} rel="noopener">Request an exception ↗</a>. |
+| Drop `secure-baseline` from `apm.yml` | 🚫 CI fails on `required-packages`. The Foundation tier is non-negotiable. |
+| Pin a newer `secure-baseline` than the policy version | ✅ Allowed — `require_resolution: project-wins` means your pin wins. Useful for canarying upgrades. |
+| Declare an MCP server in your repo's `apm.yml` directly (not from a package) | {policy.mcp?.self_defined === 'deny' ? '🚫 Blocked — package it as a plugin in this marketplace instead.' : policy.mcp?.self_defined === 'warn' ? '⚠️ Warning emitted on every audit. Long-term: package it as a plugin.' : '✅ Allowed.'} |
+| Hand-edit a file in `.github/agents/` or `.github/instructions/` | {policy.unmanaged_files?.action === 'deny' ? '🚫 Blocked — those directories are APM-managed only. Move the content into a plugin under this marketplace.' : policy.unmanaged_files?.action === 'warn' ? '⚠️ Warning. Long-term: package it.' : '✅ Allowed.'} |
+| Compile to a non-allowed target (e.g. `cursor`) | 🚫 Blocked — `compilation-target` rejects it. Allowed: <code>{(policy.compilation?.target?.allow ?? []).join(', ')}</code>. |
 
-## Verify the policy applies to your repo
+## Verify your repo right now
 
-<Code lang="bash" code={'apm audit --ci'} />
+```bash
+# Audit your local checkout against the live org policy
+apm audit --ci
 
-If the command exits non-zero, your repo is out of compliance. The output
-points at the offending file and rule id; cross-reference with
-`DevExpGbb/.github/apm-policy.yml`.
+# Same check that runs on every PR — exits non-zero on violation
+apm audit --ci --policy DevExpGbb/.github
+```
 
-## Changing the policy
+If the command exits non-zero, the output names the offending file and the
+rule id (e.g. `dependency-allowlist`, `required-packages`). Cross-reference
+the rule id with the impact table above.
 
-The policy is org-wide — changes affect every Zava repo on the next CI run.
-Open a PR against [`{POLICY_REPO}`]({POLICY_FILE_URL}) and follow the
-governance review process documented there.
+<Aside type="tip">
+  Run <code>apm audit --ci</code> locally **before** you push. Same checks, same
+  output, no waiting on a red CI run.
+</Aside>
 
-<LinkCard
-  title="APM CI policy setup guide"
-  description="Upstream documentation on policy discovery, rule severity, and audit output."
-  href={POLICY_DOCS_URL}
-  target="_blank"
-/>
+## Request an exception
+
+If a rule is blocking work you genuinely need, file an exception request — don't
+work around it (the audit catches that anyway). The platform-governance team
+reviews requests in their weekly triage.
+
+<CardGrid>
+  <LinkCard
+    title="Open an exception request →"
+    description="Pre-filled issue template against DevExpGbb/.github with checklist for rule, justification, scope, and mitigations."
+    href={POLICY_EXCEPTION_NEW_ISSUE_URL}
+    target="_blank"
+  />
+  <LinkCard
+    title="Edit the policy directly"
+    description="If you're an org admin, the policy lives in DevExpGbb/.github/apm-policy.yml and the change applies to every Zava repo on the next CI run."
+    href={POLICY_BLOB_URL}
+    target="_blank"
+  />
+</CardGrid>
+
+**Decision SLA.** First triage within 2 business days. Time-boxed exceptions
+ship as a per-repo bypass; permanent changes ship as a policy edit and roll
+out org-wide on the next audit.
+
+**Escape hatch (one-shot).** For a single CI run that absolutely must merge
+before triage:
+
+```bash
+apm install --no-policy   # bypasses install-time enforcement
+```
+
+This is logged. CI will still flag the underlying issue on the next run.
+
+## Where the policy lives
+
+<CardGrid>
+  <LinkCard
+    title="apm-policy.yml on GitHub"
+    description={`The single source of truth — ${POLICY_REPO}/apm-policy.yml.`}
+    href={POLICY_BLOB_URL}
+    target="_blank"
+  />
+  <LinkCard
+    title="Raw policy file"
+    description="The exact bytes this site rendered from at build time."
+    href={POLICY_RAW_URL}
+    target="_blank"
+  />
+  <LinkCard
+    title="APM policy reference"
+    description="Upstream docs covering every field, severity escalation rules, and the inheritance chain."
+    href={POLICY_REFERENCE_URL}
+    target="_blank"
+  />
+  <LinkCard
+    title="APM CI policy setup guide"
+    description="How `apm audit --ci` discovers the policy and reports violations."
+    href={POLICY_CI_GUIDE_URL}
+    target="_blank"
+  />
+</CardGrid>
+
+## Raw policy (for reference)
+
+<details>
+  <summary>View the full <code>apm-policy.yml</code> rendered above</summary>
+  <Code lang="yaml" code={policyYaml} />
+</details>

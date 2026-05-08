@@ -1,0 +1,63 @@
+---
+import { POLICY_HEADLINE, ENFORCEMENT } from '../data/policy';
+
+interface Props {
+  /** Optional override label (defaults to "Governed by APM policy"). */
+  label?: string;
+}
+
+const { label = 'Governed by APM policy' } = Astro.props;
+const href = `${import.meta.env.BASE_URL.replace(/\/$/, '')}/governance/policy/`;
+---
+<a class="policy-chip" href={href} data-enforcement={ENFORCEMENT} title={POLICY_HEADLINE}>
+  <span class="policy-chip__dot" aria-hidden="true"></span>
+  <span class="policy-chip__label">{label}</span>
+  <span class="policy-chip__arrow" aria-hidden="true">→</span>
+</a>
+
+<style>
+  .policy-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.35rem 0.75rem;
+    border-radius: 999px;
+    border: 1px solid var(--sl-color-gray-5);
+    background: var(--sl-color-gray-7, var(--sl-color-bg-nav));
+    color: var(--sl-color-text);
+    font-size: 0.82rem;
+    font-weight: 500;
+    text-decoration: none;
+    line-height: 1.2;
+    transition: background-color 120ms ease, border-color 120ms ease, transform 120ms ease;
+  }
+  .policy-chip:hover {
+    border-color: var(--sl-color-accent);
+    background: var(--sl-color-gray-6);
+    transform: translateY(-1px);
+  }
+  .policy-chip__dot {
+    width: 0.55rem;
+    height: 0.55rem;
+    border-radius: 50%;
+    background: #16a34a;          /* default: enforced & green */
+    box-shadow: 0 0 0 2px rgba(22, 163, 74, 0.18);
+  }
+  .policy-chip[data-enforcement='warn'] .policy-chip__dot {
+    background: #d97706;
+    box-shadow: 0 0 0 2px rgba(217, 119, 6, 0.2);
+  }
+  .policy-chip[data-enforcement='off'] .policy-chip__dot {
+    background: var(--sl-color-gray-4);
+    box-shadow: none;
+  }
+  .policy-chip__arrow {
+    font-size: 0.95em;
+    opacity: 0.6;
+    transition: transform 120ms ease, opacity 120ms ease;
+  }
+  .policy-chip:hover .policy-chip__arrow {
+    transform: translateX(2px);
+    opacity: 1;
+  }
+</style>

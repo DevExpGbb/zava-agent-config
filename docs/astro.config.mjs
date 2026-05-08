@@ -76,7 +76,7 @@ export default defineConfig({
           label: 'Governance',
           items: [
             { label: 'Consumption patterns', link: '/governance/consumption-patterns/' },
-            { label: 'Policy & CI',          link: '/governance/policy/' },
+            { label: 'Policy in force',      link: '/governance/policy/' },
           ],
         },
       ],
