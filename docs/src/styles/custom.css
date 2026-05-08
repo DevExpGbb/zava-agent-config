@@ -125,7 +125,10 @@
   margin-top: 2rem;
 }
 .landing-two-col > section { min-width: 0; }
-.landing-two-col > section > h2:first-child { margin-top: 0; }
+/* Starlight wraps headings in <div class="sl-heading-wrapper">, which carries
+   the top margin. Reset the first child of each section (whatever it is) so
+   both column titles sit on the same baseline. */
+.landing-two-col > section > :first-child { margin-top: 0; }
 /* Inside the two-col layout each side already has limited width — collapse the
    catalog grid to a single column so cards don't end up too narrow. */
 .landing-two-col .catalog-grid { grid-template-columns: 1fr; }
