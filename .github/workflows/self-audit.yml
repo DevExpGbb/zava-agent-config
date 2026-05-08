@@ -54,10 +54,15 @@ jobs:
           apm install
           echo "::endgroup::"
 
-      - name: APM audit (CI mode — supply chain + org policy)
+      # Publisher exemption: this repo PUBLISHES secure-baseline, which the org
+      # policy (DevExpGbb/.github/apm-policy.yml v2.0.0) lists in
+      # `required_packages`. Pinning ourselves would be a circular dependency,
+      # so we audit supply-chain drift but skip org-policy enforcement here.
+      # Consumers still get full `apm audit --ci --policy org` via apm-audit.yml.
+      - name: APM audit (CI mode — supply chain only, publisher exempt from org policy)
         run: |
-          echo "::group::apm audit --ci"
-          apm audit --ci -f sarif -o apm-audit.sarif
+          echo "::group::apm audit --ci --no-policy"
+          apm audit --ci --no-policy -f sarif -o apm-audit.sarif
           echo "::endgroup::"
 
       - name: APM pack (validate marketplace builds + drift check)
