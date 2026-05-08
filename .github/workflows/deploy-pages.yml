@@ -12,6 +12,11 @@ on:
       - 'plugins/**'
       - 'apm.yml'
       - '.github/workflows/deploy-pages.yml'
+  # Daily rebuild so changes to the org policy at DevExpGbb/.github/apm-policy.yml
+  # (which the policy page renders live at build time) get picked up even when
+  # this repo hasn't changed.
+  schedule:
+    - cron: '17 6 * * *'
   workflow_dispatch:
 
 permissions:

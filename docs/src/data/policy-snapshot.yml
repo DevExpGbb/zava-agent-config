@@ -1,0 +1,49 @@
+name: devexpgbb-org-policy
+version: "2.0.0"
+enforcement: block
+fetch_failure: warn
+
+cache:
+  ttl: 3600
+
+dependencies:
+  allow:
+    - "DevExpGbb/**"
+    - "microsoft/**"
+    - "github/**"
+  deny:
+    - "github/awesome-copilot/plugins/azure-cloud-development"
+    - "test-blocked/**"
+  require:
+    - "DevExpGbb/zava-agent-config/plugins/secure-baseline"
+  require_resolution: project-wins
+
+mcp:
+  allow:
+    - "io.github.github/*"
+    - "io.github.modelcontextprotocol/*"
+  deny: []
+  transport:
+    allow: [stdio, http]
+  self_defined: warn
+  trust_transitive: false
+
+compilation:
+  target:
+    allow: [vscode, claude, all]
+  strategy:
+    enforce: distributed
+  source_attribution: true
+
+manifest:
+  required_fields: [version, description]
+  scripts: allow
+  content_types:
+    allow: [instructions, skill, hybrid, prompts]
+
+unmanaged_files:
+  action: deny
+  directories:
+    - .github/agents
+    - .github/instructions
+    - .github/hooks

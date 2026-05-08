@@ -8,11 +8,11 @@ hero:
     file: ../../assets/zava.svg
   actions:
     - text: Browse the catalog
-      link: /catalog/
+      link: /zava-agent-config/catalog/
       icon: right-arrow
       variant: primary
     - text: Quick start
-      link: /quick-start/
+      link: /zava-agent-config/quick-start/
       icon: rocket
     - text: View on GitHub
       link: https://github.com/DevExpGbb/zava-agent-config
@@ -21,12 +21,12 @@ hero:
 ---
 
 import { Card, CardGrid, LinkCard } from '@astrojs/starlight/components';
-import PolicyBanner from '../../components/PolicyBanner.astro';
+import PolicyChip from '../../components/PolicyChip.astro';
 import SDLCRibbon from '../../components/SDLCRibbon.astro';
 import PluginGrid from '../../components/PluginGrid.astro';
 import { VERSION } from '../../data/plugins';
 
-<PolicyBanner />
+<p class="lead-chip-row"><PolicyChip /></p>
 
 ## The SDLC ribbon — pick a phase
 

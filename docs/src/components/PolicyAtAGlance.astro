@@ -1,0 +1,146 @@
+---
+import {
+  policy,
+  ENFORCEMENT,
+  POLICY_BLOB_URL,
+  POLICY_REPO,
+  POLICY_FILE_PATH,
+  policySource,
+} from '../data/policy';
+
+const enforcementCopy: Record<string, { tone: string; line: string }> = {
+  block: {
+    tone: 'block',
+    line: 'Violations abort `apm install` (exit 1) AND fail `apm audit --ci`. PRs cannot merge with a red audit.',
+  },
+  warn: {
+    tone: 'warn',
+    line: 'Violations are reported in audit output but do not fail the build. Treat warnings as TODOs.',
+  },
+  off: {
+    tone: 'info',
+    line: 'Policy checks are currently disabled. Compliance is voluntary.',
+  },
+};
+
+const tone = enforcementCopy[ENFORCEMENT]?.tone ?? 'info';
+const line = enforcementCopy[ENFORCEMENT]?.line ?? '';
+---
+<aside class="policy-glance" data-tone={tone}>
+  <header class="policy-glance__header">
+    <div class="policy-glance__title">
+      <span class="policy-glance__name">{policy.name ?? 'Org APM policy'}</span>
+      <span class="policy-glance__version">v{policy.version ?? '?'}</span>
+    </div>
+    <span class={`policy-glance__pill policy-glance__pill--${tone}`}>
+      enforcement: {ENFORCEMENT}
+    </span>
+  </header>
+  <p class="policy-glance__line">{line}</p>
+  <dl class="policy-glance__meta">
+    <div>
+      <dt>Source</dt>
+      <dd>
+        <a href={POLICY_BLOB_URL} rel="noopener">
+          <code>{POLICY_REPO}/{POLICY_FILE_PATH}</code> ↗
+        </a>
+      </dd>
+    </div>
+    <div>
+      <dt>Discovery</dt>
+      <dd>Auto, via GitHub <code>.github</code> default-config pattern</dd>
+    </div>
+    <div>
+      <dt>Audited on</dt>
+      <dd>Every PR (<code>apm audit --ci</code>) + on every install (<code>apm install</code>)</dd>
+    </div>
+    <div>
+      <dt>Build snapshot</dt>
+      <dd>{policySource === 'live' ? 'Fetched live at build' : 'Cached snapshot (live fetch unavailable)'}</dd>
+    </div>
+  </dl>
+</aside>
+
+<style>
+  .policy-glance {
+    border-radius: 14px;
+    border: 1px solid var(--sl-color-gray-5);
+    padding: 1.1rem 1.25rem;
+    margin: 1rem 0 2rem;
+    background: var(--sl-color-bg-nav);
+  }
+  .policy-glance[data-tone='block'] {
+    border-left: 4px solid #dc2626;
+  }
+  .policy-glance[data-tone='warn'] {
+    border-left: 4px solid #d97706;
+  }
+  .policy-glance[data-tone='info'] {
+    border-left: 4px solid var(--sl-color-gray-4);
+  }
+  .policy-glance__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-bottom: 0.4rem;
+  }
+  .policy-glance__title {
+    display: flex;
+    align-items: baseline;
+    gap: 0.6rem;
+  }
+  .policy-glance__name {
+    font-size: 1.05rem;
+    font-weight: 600;
+    color: var(--sl-color-white);
+  }
+  .policy-glance__version {
+    font-size: 0.85rem;
+    color: var(--sl-color-gray-3);
+    font-family: var(--__sl-font-mono);
+  }
+  .policy-glance__pill {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.2rem 0.6rem;
+    border-radius: 999px;
+    font-size: 0.78rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+  .policy-glance__pill--block { background: #fee2e2; color: #991b1b; }
+  .policy-glance__pill--warn  { background: #fef3c7; color: #92400e; }
+  .policy-glance__pill--info  { background: var(--sl-color-gray-6); color: var(--sl-color-gray-2); }
+  :root[data-theme='dark'] .policy-glance__pill--block { background: #450a0a; color: #fecaca; }
+  :root[data-theme='dark'] .policy-glance__pill--warn  { background: #451a03; color: #fde68a; }
+  .policy-glance__line {
+    margin: 0 0 1rem;
+    color: var(--sl-color-text);
+  }
+  .policy-glance__line code {
+    font-size: 0.92em;
+  }
+  .policy-glance__meta {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 0.6rem 1.25rem;
+    margin: 0;
+    font-size: 0.88rem;
+  }
+  .policy-glance__meta div { display: contents; }
+  .policy-glance__meta dt {
+    color: var(--sl-color-gray-3);
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.7rem;
+    letter-spacing: 0.04em;
+    margin-bottom: 0.1rem;
+  }
+  .policy-glance__meta dd {
+    margin: 0 0 0.5rem;
+    color: var(--sl-color-text);
+  }
+</style>

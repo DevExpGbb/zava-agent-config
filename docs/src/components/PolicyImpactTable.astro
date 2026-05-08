@@ -1,0 +1,86 @@
+---
+import { POLICY_IMPACTS } from '../data/policy';
+
+/* Tiny inline markdown — `code` and *em* — so policy.ts can stay plain text. */
+function inline(s: string): string {
+  return s
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/`([^`]+)`/g, '<code>$1</code>')
+    .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
+    .replace(/(?<!\w)_([^_]+)_(?!\w)/g, '<em>$1</em>');
+}
+---
+<table class="policy-impact">
+  <thead>
+    <tr>
+      <th scope="col">Area</th>
+      <th scope="col">Rule</th>
+      <th scope="col">What this means for you</th>
+    </tr>
+  </thead>
+  <tbody>
+    {POLICY_IMPACTS.map((row) => (
+      <tr data-severity={row.severity}>
+        <th scope="row">
+          <span class={`sev sev--${row.severity}`} aria-label={`severity: ${row.severity}`}>{row.severity}</span>
+          {row.area}
+        </th>
+        <td set:html={inline(row.rule)} />
+        <td set:html={inline(row.impact)} />
+      </tr>
+    ))}
+  </tbody>
+</table>
+
+<style>
+  .policy-impact {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.92rem;
+    margin: 1rem 0 2rem;
+  }
+  .policy-impact th, .policy-impact td {
+    text-align: left;
+    vertical-align: top;
+    padding: 0.7rem 0.85rem;
+    border-bottom: 1px solid var(--sl-color-gray-5);
+  }
+  .policy-impact thead th {
+    background: var(--sl-color-bg-nav);
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--sl-color-gray-3);
+  }
+  .policy-impact tbody th {
+    font-weight: 600;
+    color: var(--sl-color-white);
+    width: 22%;
+  }
+  .policy-impact tbody td:nth-of-type(1) { width: 33%; color: var(--sl-color-gray-2); }
+  .policy-impact tbody tr:hover { background: var(--sl-color-gray-7, var(--sl-color-bg-nav)); }
+  .policy-impact code {
+    font-size: 0.9em;
+    background: var(--sl-color-gray-6);
+    padding: 0.05em 0.35em;
+    border-radius: 4px;
+  }
+  .sev {
+    display: inline-block;
+    margin-right: 0.45rem;
+    padding: 0.05rem 0.4rem;
+    border-radius: 4px;
+    font-size: 0.62rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    vertical-align: middle;
+  }
+  .sev--block { background: #fee2e2; color: #991b1b; }
+  .sev--warn  { background: #fef3c7; color: #92400e; }
+  .sev--info  { background: var(--sl-color-gray-6); color: var(--sl-color-gray-2); }
+  :root[data-theme='dark'] .sev--block { background: #450a0a; color: #fecaca; }
+  :root[data-theme='dark'] .sev--warn  { background: #451a03; color: #fde68a; }
+</style>
