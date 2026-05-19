@@ -1,5 +1,5 @@
 name: zava-agent-config
-version: 6.1.0
+version: 6.1.2
 description: >-
   Zava Engineering — central agent configuration marketplace. Seven plugins in
   three tiers: cross-cutting baseline (secure-baseline) + five SDLC phase kits

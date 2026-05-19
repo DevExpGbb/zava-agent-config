@@ -4,7 +4,7 @@
 # .claude-plugin/plugin.json; keep `version` in sync with the top-level
 # marketplace (zava-agent-config v6.1.0).
 name: review-kit
-version: 6.1.0
+version: 6.1.2
 description: >-
   REVIEW phase of the Zava Agentic SDLC ribbon. Pre-PR self-review skills — multi-perspective panel review (architect + security) of staged changes, run by the author before push to surface design and security gaps before the human PR reviewer pays the tax.
 author: Zava Engineering
