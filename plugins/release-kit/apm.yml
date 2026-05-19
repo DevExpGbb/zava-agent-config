@@ -4,7 +4,7 @@
 # .claude-plugin/plugin.json; keep `version` in sync with the top-level
 # marketplace (zava-agent-config v6.1.0).
 name: release-kit
-version: 6.1.0
+version: 6.1.2
 description: >-
   RELEASE phase of the Zava Agentic SDLC ribbon. CI/CD golden paths instructions — reusable workflows, deployment gates, environment promotion conventions.
 author: Zava Engineering
