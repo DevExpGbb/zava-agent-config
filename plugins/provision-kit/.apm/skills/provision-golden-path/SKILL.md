@@ -161,7 +161,10 @@ gh issue view <number> -R DevExpGbb/zava-agent-config \
   --jq '{state, labels: [.labels[].name], last: (.comments[-1].body // "")}'
 ```
 
-Optionally confirm the run is progressing (status only):
+ALSO poll the workflow run conclusion - it is the AUTHORITATIVE terminal
+signal. A run that dies inside the provisioning engine can leave the issue
+still labeled `provision` with only the "started" comment (no failure label,
+no failure comment), so never wait on the issue thread alone:
 
 ```bash
 run_id=$(gh run list -R DevExpGbb/zava-agent-config \
@@ -170,10 +173,14 @@ gh run view "$run_id" -R DevExpGbb/zava-agent-config \
   --json status,conclusion --jq '{status, conclusion}'
 ```
 
-Terminal states:
-- **Success**: the issue gets a `provisioned` label and a comment starting
-  `Provisioned.` with the repo and (usually) the live URL, then closes.
-- **Failure**: the issue gets a `provision-failed` label and a failure comment.
+Terminal states (read the run conclusion first, then the issue thread):
+- **Success**: run `conclusion: success`; the issue gets a `provisioned` label
+  and a comment starting `Provisioned.` with the repo and (usually) the live
+  URL, then closes.
+- **Failure**: run `conclusion: failure`. Usually the issue also gets a
+  `provision-failed` label and a failure comment - but if the engine step
+  itself fails, the issue may stay labeled `provision` with no failure comment.
+  Trust the run conclusion, not the absence of a failure label.
 
 Narrate transitions in plain language ("creating the repo", "wiring OIDC",
 "scoping RBAC", "first deploy running") based on elapsed time and the latest
@@ -209,10 +216,13 @@ they ask for depth.
   the input with the developer, and retry by commenting `/provision` on the same
   issue (the workflow re-runs on a `/provision` comment) or by editing the issue.
   Do not open a second issue for the same request.
-- **Provisioning failed mid-run**: read the failure comment; if you need detail,
-  tail ONLY the failed logs (not the whole run):
+- **Provisioning failed mid-run** (run `conclusion: failure`): there may be no
+  failure comment, so diagnose from the run, not the issue. Tail ONLY the failed
+  logs (not the whole run):
   `gh run view "$run_id" -R DevExpGbb/zava-agent-config --log-failed`.
-  Summarize the cause, then offer one bounded retry via `/provision`.
+  Summarize the cause, then offer one bounded retry via `/provision`. The engine
+  is idempotent: a retry reuses any repo, resource group, and Entra app the
+  failed run already created, so it resumes rather than duplicating them.
 - **Live URL not 200 yet**: report the repo as provisioned, say the deploy is
   warming, and link `https://github.com/DevExpGbb/<name>/actions`.
 
