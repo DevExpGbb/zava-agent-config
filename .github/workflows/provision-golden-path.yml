@@ -1,0 +1,77 @@
+name: 🚀 Provision golden-path service
+
+# Service 2 — the platform golden path.
+# One trigger turns a service name into a fully provisioned, governed repo:
+# created from DevExpGbb/zava-app-template, wired to Azure with GitHub-federated
+# OIDC (no secrets in the app repo), RG-scoped RBAC, and a first deploy to
+# Azure Container Apps.
+#
+# Identity model (see platform/README.md):
+#   • Azure  -> the `zava-platform-provisioner` SP, OIDC-federated to this repo's
+#               `platform` environment. No stored Azure secret.
+#   • GitHub -> ZAVA_PLATFORM_TOKEN (fine-grained PAT or GitHub App installation
+#               token) with org Administration/Variables/Environments write, so
+#               the workflow can create and configure *other* repos. The default
+#               GITHUB_TOKEN is repo-scoped and cannot do this.
+
+on:
+  workflow_dispatch:
+    inputs:
+      app_name:
+        description: "New service / repo name (e.g. zava-orders)"
+        required: true
+        type: string
+      location:
+        description: "Azure region"
+        required: false
+        default: eastus
+        type: string
+
+permissions:
+  id-token: write   # OIDC token for the Azure platform identity
+  contents: read
+
+jobs:
+  provision:
+    name: Provision ${{ inputs.app_name }}
+    runs-on: ubuntu-latest
+    environment: platform   # gated — federated-credential subject binds here
+    env:
+      AZURE_CLIENT_ID: ${{ vars.AZURE_CLIENT_ID }}
+      AZURE_TENANT_ID: ${{ vars.AZURE_TENANT_ID }}
+      AZURE_SUBSCRIPTION_ID: ${{ vars.AZURE_SUBSCRIPTION_ID }}
+      AZURE_LOCATION: ${{ inputs.location }}
+      GH_TOKEN: ${{ secrets.ZAVA_PLATFORM_TOKEN }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Preflight — platform GitHub token present
+        run: |
+          if [ -z "${GH_TOKEN}" ]; then
+            echo "::error::ZAVA_PLATFORM_TOKEN is not set. See platform/README.md → 'Platform identity'." 
+            exit 1
+          fi
+
+      - name: Azure login (OIDC, federated — no secret)
+        uses: azure/login@v2
+        with:
+          client-id: ${{ vars.AZURE_CLIENT_ID }}
+          tenant-id: ${{ vars.AZURE_TENANT_ID }}
+          subscription-id: ${{ vars.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Provision golden-path service
+        run: |
+          chmod +x platform/provision/zava-provision.sh
+          platform/provision/zava-provision.sh "${{ inputs.app_name }}" "${{ inputs.location }}"
+
+      - name: Summary
+        run: |
+          APP="${{ inputs.app_name }}"
+          {
+            echo "### 🚀 Provisioned \`DevExpGbb/${APP}\`"
+            echo ""
+            echo "- Repo created from \`zava-app-template\`"
+            echo "- Azure identity + GitHub-federated OIDC (no secrets in the app repo)"
+            echo "- RG-scoped RBAC on \`rg-${APP}\`"
+            echo "- First deploy dispatched → watch the new repo's **Deploy (golden path)** run"
+          } >> "$GITHUB_STEP_SUMMARY"

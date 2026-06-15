@@ -18,6 +18,22 @@ This is the human-readable index of every plugin shipped by the `zava-agent-conf
 
 > Future kits (`plan-kit`, `build-kit`, `test-kit`) will land in 5.x as content is authored against the remaining ribbon phases. The marketplace owner spec is fixed; new kits are additive and non-breaking.
 
+## Platform golden path (Demo 2)
+
+Beyond the SDLC ribbon kits, this repo hosts the **platform control surface** that
+provisions new Zava services end-to-end — the agentic golden path behind Demo 2.
+
+| Surface | What it does |
+|---|---|
+| [`platform/`](platform/) | The golden-path provisioning engine, workflows, and identity model (start here). |
+| **🚀 Provision golden-path service** (Actions → `workflow_dispatch`) | One trigger → new repo from `zava-app-template`, GitHub-federated OIDC (no secrets), RG-scoped RBAC, first deploy to Azure Container Apps. |
+| [`platform/skills/provision-golden-path.prompt.md`](platform/skills/provision-golden-path.prompt.md) | Agent-facing skill: how an agent/developer invokes the golden path. |
+
+This lands the **three governance planes** — APM (supply chain, inherited from the
+template's audit gate), GitHub Enterprise (OIDC + gated environments), and Azure
+(RG-per-service, secretless federated identities). See [`platform/README.md`](platform/README.md).
+
+
 ## How consumers use this
 
 ### Composed pin (recommended) — pick only what you need
