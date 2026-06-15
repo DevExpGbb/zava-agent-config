@@ -1,0 +1,200 @@
+name: 🛎️ Provision golden path (from issue)
+
+# Developer front door (Service 2).
+#
+# A developer files the "Provision a new service" Issue Form (directly, or via the
+# button on the Zava IDP Pages site, which just deep-links to a prefilled form).
+# That issue carries the `provision` label, which triggers this workflow:
+#   parse the form -> provision via the same engine the workflow_dispatch path
+#   uses -> deploy -> comment back on the issue with the repo + live URL.
+#
+# Identity model is identical to provision-golden-path.yml:
+#   • Azure  -> zava-platform-provisioner SP, OIDC-federated to the `platform`
+#               environment. No stored Azure secret.
+#   • GitHub -> ZAVA_PLATFORM_TOKEN (creates/configures *other* repos). The
+#               repo-scoped GITHUB_TOKEN only comments/labels this issue.
+
+on:
+  issues:
+    types: [opened]
+  issue_comment:
+    types: [created]
+
+permissions:
+  contents: read
+  issues: write     # comment / label / close the triggering issue (GITHUB_TOKEN)
+  id-token: write   # OIDC token for the Azure platform identity
+
+concurrency:
+  group: provision-issue-${{ github.event.issue.number }}
+  cancel-in-progress: false
+
+jobs:
+  provision:
+    # Only act on issues carrying the `provision` label. For comment retries the
+    # author must type `/provision` (so ordinary discussion doesn't re-trigger).
+    if: >-
+      (github.event_name == 'issues' && contains(github.event.issue.labels.*.name, 'provision')) ||
+      (github.event_name == 'issue_comment' && contains(github.event.issue.labels.*.name, 'provision') && startsWith(github.event.comment.body, '/provision'))
+    name: Provision from issue #${{ github.event.issue.number }}
+    runs-on: ubuntu-latest
+    environment: platform   # gated — federated-credential subject binds here
+    timeout-minutes: 25
+    env:
+      ORG: DevExpGbb
+      AZURE_CLIENT_ID: ${{ vars.AZURE_CLIENT_ID }}
+      AZURE_TENANT_ID: ${{ vars.AZURE_TENANT_ID }}
+      AZURE_SUBSCRIPTION_ID: ${{ vars.AZURE_SUBSCRIPTION_ID }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Acknowledge request
+        uses: actions/github-script@v7
+        with:
+          script: |
+            await github.rest.reactions.createForIssue({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              content: 'rocket',
+            });
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body: '🛎️ **Golden path started.** Provisioning your service — creating the repo from `zava-app-template`, wiring Azure OIDC (no secrets), scoping RBAC, and running the first deploy. I’ll comment here with the repo and live URL when it’s ready (usually a few minutes).',
+            });
+
+      - name: Preflight — platform GitHub token present
+        run: |
+          if [ -z "${{ secrets.ZAVA_PLATFORM_TOKEN }}" ]; then
+            echo "::error::ZAVA_PLATFORM_TOKEN is not set. See platform/README.md → 'Platform identity'."
+            exit 1
+          fi
+
+      - name: Parse request
+        id: parse
+        env:
+          ISSUE_BODY: ${{ github.event.issue.body }}
+        run: node platform/provision/parse-issue-form.mjs >> "$GITHUB_OUTPUT"
+
+      - name: Reject invalid request
+        if: steps.parse.outputs.valid != 'true'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const error = `${{ steps.parse.outputs.error }}`;
+            await github.rest.issues.addLabels({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              labels: ['provision-failed'],
+            });
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body: `⚠️ I couldn’t process this request.\n\n> ${error}\n\nEdit the issue (or comment \`/provision\` after fixing) to try again.`,
+            });
+            core.setFailed(error);
+
+      - name: Azure login (OIDC, federated — no secret)
+        if: steps.parse.outputs.valid == 'true'
+        uses: azure/login@v2
+        with:
+          client-id: ${{ vars.AZURE_CLIENT_ID }}
+          tenant-id: ${{ vars.AZURE_TENANT_ID }}
+          subscription-id: ${{ vars.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Provision golden-path service
+        id: provision
+        if: steps.parse.outputs.valid == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.ZAVA_PLATFORM_TOKEN }}
+          APP_NAME: ${{ steps.parse.outputs.name }}
+          LOCATION: ${{ steps.parse.outputs.region }}
+        run: |
+          chmod +x platform/provision/zava-provision.sh
+          platform/provision/zava-provision.sh "${APP_NAME}" "${LOCATION}"
+          echo "repo_url=https://github.com/${ORG}/${APP_NAME}" >> "$GITHUB_OUTPUT"
+
+      - name: Wait for first deploy & verify live URL
+        id: verify
+        if: steps.parse.outputs.valid == 'true'
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ secrets.ZAVA_PLATFORM_TOKEN }}
+          APP_NAME: ${{ steps.parse.outputs.name }}
+        run: |
+          set -uo pipefail
+          # The engine dispatched deploy.yml on the new repo; give it a moment to register.
+          sleep 15
+          run_id="$(gh run list -R "${ORG}/${APP_NAME}" --workflow=deploy.yml -L1 --json databaseId -q '.[0].databaseId' 2>/dev/null || true)"
+          if [ -n "${run_id}" ]; then
+            echo "Watching deploy run ${run_id} on ${ORG}/${APP_NAME}"
+            timeout 900 gh run watch -R "${ORG}/${APP_NAME}" "${run_id}" --exit-status --interval 15 || true
+          fi
+          fqdn="$(az containerapp list -g "rg-${APP_NAME}" --query '[0].properties.configuration.ingress.fqdn' -o tsv 2>/dev/null || true)"
+          code=""
+          if [ -n "${fqdn}" ]; then
+            url="https://${fqdn}"
+            echo "url=${url}" >> "$GITHUB_OUTPUT"
+            for i in 1 2 3 4 5 6; do
+              code="$(curl -s -o /dev/null -w '%{http_code}' --max-time 15 "${url}" || true)"
+              echo "attempt ${i}: HTTP ${code}"
+              [ "${code}" = "200" ] && break
+              sleep 15
+            done
+          fi
+          echo "http_code=${code}" >> "$GITHUB_OUTPUT"
+
+      - name: Comment result & close
+        if: steps.parse.outputs.valid == 'true' && steps.provision.outcome == 'success'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const repoUrl = `${{ steps.provision.outputs.repo_url }}`;
+            const url = `${{ steps.verify.outputs.url }}`;
+            const code = `${{ steps.verify.outputs.http_code }}`;
+            const live = code === '200' && url
+              ? `\n- 🌐 **Live:** ${url} (HTTP 200 ✅)`
+              : `\n- 🌐 Live URL is warming up — watch [the deploy](${repoUrl}/actions).`;
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body: `✅ **Provisioned.**\n- 📦 **Repo:** ${repoUrl} (from \`zava-app-template\`)\n- 🔐 GitHub-federated Azure OIDC — **no secrets** in the app repo\n- 🛡️ RBAC scoped to \`rg-${{ steps.parse.outputs.name }}\`${live}\n\nGovernance is already on: the APM supply-chain audit gate and secure-baseline pins ship with the repo. Happy shipping! 🚀`,
+            });
+            await github.rest.issues.addLabels({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              labels: ['provisioned'],
+            });
+            await github.rest.issues.update({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              state: 'closed',
+              state_reason: 'completed',
+            });
+
+      - name: Comment failure
+        if: steps.parse.outputs.valid == 'true' && steps.provision.outcome != 'success'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const runUrl = `${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`;
+            await github.rest.issues.addLabels({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              labels: ['provision-failed'],
+            });
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body: `❌ Provisioning failed. See [the run logs](${runUrl}). Fix the issue and comment \`/provision\` to retry.`,
+            });
+            core.setFailed('provisioning failed');

@@ -1,0 +1,155 @@
+---
+// ProvisionForm — the developer front door on the Zava IDP site.
+//
+// A static site can't run server code, so this form doesn't provision directly.
+// It collects the request and deep-links to a **prefilled GitHub Issue Form**.
+// Submitting that issue (label `provision`) triggers the IssueOps workflow
+// (.github/workflows/provision-from-issue.yml) which runs the golden path and
+// comments back with the repo + live URL. One code path, real governance.
+const REPO = 'DevExpGbb/zava-agent-config';
+const TEMPLATE = 'provision-service.yml';
+---
+
+<form class="provision-form" id="provision-form" data-repo={REPO} data-template={TEMPLATE}>
+  <div class="field">
+    <label for="svc-name">Service name</label>
+    <input id="svc-name" name="svc-name" type="text" placeholder="zava-orders"
+           autocomplete="off" spellcheck="false" required />
+    <small>Lowercase kebab-case. The <code>zava-</code> prefix is added automatically.</small>
+  </div>
+
+  <div class="field">
+    <label for="svc-region">Azure region</label>
+    <select id="svc-region" name="svc-region">
+      <option value="eastus" selected>eastus</option>
+      <option value="eastus2">eastus2</option>
+      <option value="westus3">westus3</option>
+      <option value="westeurope">westeurope</option>
+      <option value="northeurope">northeurope</option>
+    </select>
+  </div>
+
+  <div class="field">
+    <label for="svc-owner">Owning team / contact <span class="opt">(optional)</span></label>
+    <input id="svc-owner" name="svc-owner" type="text" placeholder="@payments-team"
+           autocomplete="off" />
+  </div>
+
+  <div class="field">
+    <label for="svc-desc">What is this service for? <span class="opt">(optional)</span></label>
+    <textarea id="svc-desc" name="svc-desc" rows="2"
+              placeholder="Order intake API for the storefront checkout flow."></textarea>
+  </div>
+
+  <div class="actions">
+    <button type="submit" class="primary">Continue on GitHub →</button>
+    <a id="issue-link" class="preview" href="#" target="_blank" rel="noopener">Review the prefilled request ↗</a>
+  </div>
+
+  <p class="hint">
+    You'll be taken to a prefilled GitHub issue. Submitting it opens the golden
+    path — the platform provisions the repo, wires Azure OIDC (no secrets), and
+    deploys. You get a comment with the repo and live URL.
+  </p>
+</form>
+
+<style>
+  .provision-form {
+    display: grid;
+    gap: 1rem;
+    max-width: 36rem;
+    margin-block: 1.5rem;
+    padding: 1.25rem 1.25rem 1rem;
+    border: 1px solid var(--sl-color-gray-5);
+    border-radius: 0.75rem;
+    background: var(--sl-color-gray-7, var(--sl-color-black));
+  }
+  .field { display: grid; gap: 0.35rem; }
+  .field label { font-weight: 600; }
+  .field .opt { font-weight: 400; color: var(--sl-color-gray-3); }
+  .field small { color: var(--sl-color-gray-3); }
+  .provision-form input,
+  .provision-form select,
+  .provision-form textarea {
+    width: 100%;
+    padding: 0.5rem 0.6rem;
+    border: 1px solid var(--sl-color-gray-5);
+    border-radius: 0.4rem;
+    background: var(--sl-color-black);
+    color: var(--sl-color-white);
+    font: inherit;
+  }
+  .provision-form input:focus,
+  .provision-form select:focus,
+  .provision-form textarea:focus {
+    outline: 2px solid var(--sl-color-accent);
+    outline-offset: 1px;
+  }
+  .actions { display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; }
+  .primary {
+    padding: 0.55rem 1.1rem;
+    border: 0;
+    border-radius: 0.45rem;
+    background: var(--sl-color-accent);
+    color: var(--sl-color-white);
+    font: inherit;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  .primary:hover { background: var(--sl-color-accent-high); }
+  .preview { font-size: 0.9rem; }
+  .hint { margin: 0; font-size: 0.85rem; color: var(--sl-color-gray-3); }
+</style>
+
+<script>
+  function normaliseName(raw: string): string {
+    let name = (raw || '').toLowerCase().trim();
+    name = name.replace(/[^a-z0-9-]/g, '-').replace(/-+/g, '-').replace(/^-+|-+$/g, '');
+    if (!name) return '';
+    if (!name.startsWith('zava-')) name = `zava-${name}`;
+    return name;
+  }
+
+  function setup(): void {
+    const form = document.getElementById('provision-form') as HTMLFormElement | null;
+    if (!form) return;
+    const repo = form.dataset.repo || 'DevExpGbb/zava-agent-config';
+    const template = form.dataset.template || 'provision-service.yml';
+    const link = document.getElementById('issue-link') as HTMLAnchorElement | null;
+
+    const val = (id: string) =>
+      (document.getElementById(id) as HTMLInputElement | HTMLTextAreaElement | null)?.value || '';
+
+    function buildUrl(): string {
+      const name = normaliseName(val('svc-name'));
+      const params = new URLSearchParams({ template });
+      if (name) {
+        params.set('title', `Provision service: ${name}`);
+        params.set('service-name', name);
+      }
+      params.set('region', val('svc-region') || 'eastus');
+      const owner = val('svc-owner');
+      if (owner) params.set('owner', owner);
+      const desc = val('svc-desc');
+      if (desc) params.set('description', desc);
+      return `https://github.com/${repo}/issues/new?${params.toString()}`;
+    }
+
+    function refresh(): void {
+      if (link) link.href = buildUrl();
+    }
+
+    form.addEventListener('input', refresh);
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      window.location.assign(buildUrl());
+    });
+    refresh();
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', setup);
+  } else {
+    setup();
+  }
+</script>

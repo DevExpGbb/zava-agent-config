@@ -1,0 +1,5 @@
+blank_issues_enabled: true
+contact_links:
+  - name: 📖 Platform docs (Zava IDP)
+    url: https://devexpgbb.github.io/zava-agent-config/provision/
+    about: How the golden path works, what you get, and the ops escape hatch.

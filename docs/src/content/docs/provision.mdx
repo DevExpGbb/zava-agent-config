@@ -1,0 +1,58 @@
+---
+title: Provision a service
+description: The developer front door to the Zava golden path. Fill the form, submit the issue, and the platform creates a governed repo wired to Azure (OIDC, no secrets) with a first deploy to Azure Container Apps.
+---
+
+import ProvisionForm from '../../components/ProvisionForm.astro';
+import { Steps, Aside, LinkButton } from '@astrojs/starlight/components';
+
+The **golden path** turns a service name into a working, governed service — no
+tickets, no manual Azure clicks, no copied YAML. One request in, a deployed repo
+out.
+
+## Request a new service
+
+<ProvisionForm />
+
+<Aside type="tip">
+  Prefer the raw issue? Open the <a href="https://github.com/DevExpGbb/zava-agent-config/issues/new?template=provision-service.yml">prefilled GitHub Issue Form</a> directly — same path.
+</Aside>
+
+## What happens
+
+<Steps>
+
+1. **You submit the form.** It opens a prefilled GitHub Issue (label `provision`).
+   The form is just a friendly front end — the issue *is* the request.
+
+2. **IssueOps takes over.** The `provision-from-issue` workflow parses your
+   request and runs the platform golden path in a gated `platform` environment.
+
+3. **The platform provisions.** A repo is created from
+   [`zava-app-template`](https://github.com/DevExpGbb/zava-app-template), a
+   GitHub-federated Azure identity is wired (**no secrets** in your repo), RBAC
+   is scoped to a dedicated resource group, and the first deploy runs.
+
+4. **You get a comment back** on the issue with the repo link and the live URL.
+   The issue closes itself on success.
+
+</Steps>
+
+## What you get
+
+- A repo from the golden template — app, infra (Bicep), and the deploy pipeline.
+- **Secretless** Azure auth via OIDC federated to your repo's `dev` environment.
+- A dedicated resource group (`rg-<service>`) — isolated blast radius.
+- Governance already on: the APM supply-chain audit gate and `secure-baseline`
+  pins ship with the repo. You configure none of it.
+
+## Operators
+
+The same engine backs a `workflow_dispatch` escape hatch for platform operators
+(re-runs, backfills) — see
+[`provision-golden-path`](https://github.com/DevExpGbb/zava-agent-config/actions/workflows/provision-golden-path.yml).
+Developers should always use the form above.
+
+<LinkButton href="https://github.com/DevExpGbb/zava-agent-config/issues/new?template=provision-service.yml" icon="rocket">
+  Provision a service
+</LinkButton>
