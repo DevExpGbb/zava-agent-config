@@ -57,8 +57,35 @@ fi
 
 SP_OID="$(az ad sp list --filter "appId eq '${APP_ID}'" --query '[0].id' -o tsv)"
 if [[ -z "${SP_OID}" ]]; then
-  SP_OID="$(az ad sp create --id "${APP_ID}" --query id -o tsv)"
-  echo "created sp objectId=${SP_OID}"
+  # The service principal can only be created once its backing app registration
+  # has replicated across Microsoft Graph. Locally the human pace hides this; in
+  # CI `sp create` runs milliseconds after `app create`, so it races the
+  # transient "the backing application of the service principal being created
+  # must in the local tenant" error. Wait for the app to resolve, then retry.
+  for i in $(seq 1 20); do
+    if ! az ad app show --id "${APP_ID}" >/dev/null 2>&1; then
+      echo "  app not replicated yet (${i}/20) — waiting…"
+      sleep 6
+      continue
+    fi
+    if SP_OID="$(az ad sp create --id "${APP_ID}" --query id -o tsv 2>/tmp/sp.err)" && [[ -n "${SP_OID}" ]]; then
+      echo "created sp objectId=${SP_OID}"
+      break
+    fi
+    # A concurrent caller may have already created the SP — that is success.
+    SP_OID="$(az ad sp list --filter "appId eq '${APP_ID}'" --query '[0].id' -o tsv)"
+    if [[ -n "${SP_OID}" ]]; then
+      echo "reusing sp objectId=${SP_OID} (created concurrently)"
+      break
+    fi
+    echo "  sp create attempt ${i}/20 failed (app propagation?) — retrying…"
+    sed 's/^/    /' /tmp/sp.err 2>/dev/null || true
+    sleep 6
+  done
+  if [[ -z "${SP_OID}" ]]; then
+    echo "::error::service principal creation failed after retries"
+    exit 1
+  fi
 else
   echo "reusing sp objectId=${SP_OID}"
 fi
