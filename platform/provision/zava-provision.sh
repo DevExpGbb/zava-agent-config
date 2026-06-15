@@ -63,29 +63,79 @@ else
   echo "reusing sp objectId=${SP_OID}"
 fi
 
+# Entra is eventually-consistent: a freshly-created app/SP needs to replicate
+# across Microsoft Graph before federated-credential and RBAC writes can resolve
+# it. Locally the human pace hides this; in CI the steps run back-to-back, so we
+# wait for the objects to become queryable before using them.
+say "3b/8 Wait for Entra propagation of app ${APP_ID}"
+for i in $(seq 1 20); do
+  if az ad app show --id "${APP_ID}" >/dev/null 2>&1 && \
+     az ad sp show --id "${SP_OID}" >/dev/null 2>&1; then
+    echo "app + sp resolvable"
+    break
+  fi
+  echo "  not replicated yet (${i}/20) — waiting…"
+  sleep 6
+done
+
 say "4/8 Federated credential  subject=${SUBJECT}"
 FC_NAME="gh-${APP}-${ENVIRONMENT}"
 if az ad app federated-credential list --id "${APP_ID}" --query "[?name=='${FC_NAME}']|[0].name" -o tsv | grep -q .; then
   echo "federated credential exists"
 else
-  az ad app federated-credential create --id "${APP_ID}" --parameters "{
+  fc_params="{
     \"name\": \"${FC_NAME}\",
     \"issuer\": \"https://token.actions.githubusercontent.com\",
     \"subject\": \"${SUBJECT}\",
     \"audiences\": [\"api://AzureADTokenExchange\"]
-  }" -o none
-  echo "created ${FC_NAME}"
+  }"
+  created=""
+  for i in $(seq 1 8); do
+    if az ad app federated-credential create --id "${APP_ID}" --parameters "${fc_params}" -o none 2>/tmp/fc.err; then
+      created=1
+      echo "created ${FC_NAME}"
+      break
+    fi
+    echo "  fed-cred attempt ${i}/8 failed (propagation?) — retrying…"
+    sed 's/^/    /' /tmp/fc.err 2>/dev/null || true
+    sleep 8
+  done
+  if [[ -z "${created}" ]]; then
+    echo "::error::federated credential creation failed after retries"
+    cat /tmp/fc.err 2>/dev/null || true
+    exit 1
+  fi
 fi
 
 say "5/8 RBAC: Owner on ${RG} for the deploy identity"
 # Owner (not just Contributor) because the golden-path Bicep creates a role
 # assignment (AcrPull for the app's managed identity), which needs role-write.
 # Scope is a single dedicated RG -> isolated blast radius per service.
-az role assignment create \
-  --assignee-object-id "${SP_OID}" \
-  --assignee-principal-type ServicePrincipal \
-  --role "Owner" \
-  --scope "${RG_SCOPE}" -o none 2>/dev/null || echo "(role assignment already present)"
+assigned=""
+for i in $(seq 1 8); do
+  if az role assignment create \
+      --assignee-object-id "${SP_OID}" \
+      --assignee-principal-type ServicePrincipal \
+      --role "Owner" \
+      --scope "${RG_SCOPE}" -o none 2>/tmp/rbac.err; then
+    assigned=1
+    echo "role assigned"
+    break
+  fi
+  if grep -qiE "RoleAssignmentExists|already exists" /tmp/rbac.err; then
+    assigned=1
+    echo "(role assignment already present)"
+    break
+  fi
+  echo "  rbac attempt ${i}/8 failed (principal propagation?) — retrying…"
+  sed 's/^/    /' /tmp/rbac.err 2>/dev/null || true
+  sleep 8
+done
+if [[ -z "${assigned}" ]]; then
+  echo "::error::RBAC role assignment failed after retries"
+  cat /tmp/rbac.err 2>/dev/null || true
+  exit 1
+fi
 echo "ok"
 
 say "6/8 GitHub environment '${ENVIRONMENT}'"
