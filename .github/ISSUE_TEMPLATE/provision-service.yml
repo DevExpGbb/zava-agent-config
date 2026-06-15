@@ -1,0 +1,57 @@
+name: 🚀 Provision a new service
+description: Request a new Zava service. The platform creates the repo, wires Azure (OIDC, no secrets), and deploys it for you.
+title: "Provision service: <name>"
+labels: ["provision"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        This opens the **golden path**. When you submit, the platform will:
+        create a repo from `zava-app-template`, wire a GitHub-federated Azure
+        identity (no secrets), scope RBAC to a dedicated resource group, and run
+        the first deploy to Azure Container Apps. You'll get a comment here with
+        the repo and the live URL.
+  - type: input
+    id: service-name
+    attributes:
+      label: Service name
+      description: Lowercase kebab-case. The `zava-` prefix is added if you omit it. Becomes the repo name and resource group.
+      placeholder: zava-orders
+    validations:
+      required: true
+  - type: dropdown
+    id: region
+    attributes:
+      label: Azure region
+      description: Where the service's resource group is created.
+      options:
+        - eastus
+        - eastus2
+        - westus3
+        - westeurope
+        - northeurope
+      default: 0
+    validations:
+      required: true
+  - type: input
+    id: owner
+    attributes:
+      label: Owning team / contact
+      description: Who owns this service (team alias or GitHub handle).
+      placeholder: "@payments-team"
+    validations:
+      required: false
+  - type: textarea
+    id: description
+    attributes:
+      label: What is this service for?
+      description: One or two lines. Helps the catalog and reviewers.
+      placeholder: Order intake API for the storefront checkout flow.
+    validations:
+      required: false
+  - type: markdown
+    attributes:
+      value: |
+        > Governance is inherited automatically: every generated repo ships the
+        > APM supply-chain audit gate and the secure-baseline pins. You don't
+        > configure any of it.

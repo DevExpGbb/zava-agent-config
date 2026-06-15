@@ -28,6 +28,7 @@ export default defineConfig({
           label: 'Start here',
           items: [
             { label: 'Welcome', link: '/' },
+            { label: 'Provision a service', link: '/provision/', badge: 'Golden path' },
             { label: 'Quick start', link: '/quick-start/' },
             { label: 'Install patterns', link: '/install/' },
           ],
