@@ -11,6 +11,11 @@
       "source": "./plugins/secure-baseline"
     },
     {
+      "name": "provision-kit",
+      "description": "PROVISION stage (Day-0) — provision-golden-path skill. Files the governed request through the platform IssueOps front door, watches the run live, verifies the new repo + live URL, and explains the guardrails (template lineage, secretless OIDC, scoped RBAC, deploy pipeline).",
+      "source": "./plugins/provision-kit"
+    },
+    {
       "name": "ideate-kit",
       "description": "IDEATE stage — meeting-to-issue skill (transcript / voice / ticket → well-formed GitHub issue).",
       "source": "./plugins/ideate-kit"
