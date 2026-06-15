@@ -51,6 +51,7 @@ export const APM_QUICKSTART_URL =
 
 export type Tier = 'foundation' | 'phase' | 'accelerator';
 export type Phase =
+  | 'PROVISION'
   | 'IDEATE'
   | 'PLAN'
   | 'CODE'
@@ -85,7 +86,7 @@ export interface Plugin {
 }
 
 const PHASES_LIST: Phase[] = [
-  'IDEATE', 'PLAN', 'CODE', 'BUILD', 'TEST', 'REVIEW', 'RELEASE', 'OPERATE',
+  'PROVISION', 'IDEATE', 'PLAN', 'CODE', 'BUILD', 'TEST', 'REVIEW', 'RELEASE', 'OPERATE',
 ];
 
 export const PHASES: { id: Phase; label: string }[] = PHASES_LIST.map((p) => ({
@@ -111,6 +112,11 @@ const PLUGIN_NOTES: Record<
     pinIf:
       'You ship anything. Mandatory explicit pin for every Zava service — never satisfied transitively.',
     pairsWith: ['code-kit', 'review-kit', 'release-kit'],
+  },
+  'provision-kit': {
+    pinIf:
+      'You want developers to stand up new golden-path services conversationally — the agent gathers the details, files the governed IssueOps request, watches the run live, and verifies the deployed result.',
+    pairsWith: ['secure-baseline'],
   },
   'ideate-kit': {
     pinIf:
