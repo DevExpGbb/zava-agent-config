@@ -9,6 +9,14 @@ description: >-
   "provision an app", or "start a new microservice".
 ---
 
+---
+
+> **Superseded.** This single-shot prompt has been replaced by the packaged
+> [`provision-kit`](../../plugins/provision-kit/) `provision-golden-path` skill,
+> which gathers details conversationally, files the governed IssueOps request,
+> watches the run live, verifies the live URL, and explains the guardrails.
+> Kept here for reference and for the operator `workflow_dispatch` escape hatch.
+
 # Provision golden-path service
 
 You provision new Zava services **only** through the platform golden path. You do

@@ -12,11 +12,12 @@ The marketplace is a 3-tier taxonomy that mirrors the [PLATFORM.md SDLC ribbon](
 flowchart TB
     subgraph RIBBON["SDLC RIBBON  ·  consumer team's compounding spine  ·  PLATFORM.md §2"]
         direction LR
-        P1[IDEATE] --> P2[PLAN] --> P3[CODE] --> P4[BUILD] --> P5[TEST] --> P6[REVIEW] --> P7[RELEASE] --> P8[OPERATE]
+        P0[PROVISION] --> P1[IDEATE] --> P2[PLAN] --> P3[CODE] --> P4[BUILD] --> P5[TEST] --> P6[REVIEW] --> P7[RELEASE] --> P8[OPERATE]
     end
 
     subgraph KITS["PHASE KITS  ·  one per covered phase  ·  independently versioned"]
         direction LR
+        K0["provision-kit<br/><i>provision-golden-path (skill)</i>"]
         K1["ideate-kit<br/><i>meeting-to-issue (skill)</i>"]
         K3["code-kit<br/><i>architect (persona)</i>"]
         K6["review-kit<br/><i>panel-review (skill)</i>"]
@@ -34,6 +35,7 @@ flowchart TB
         ACC1["modernize-kit<br/><i>framework-modernizer · Express 4→5</i><br/><i>nextjs-modernizer · Next 14→15</i><br/><i>(roadmap: React 17→18, Spring Boot 2→3, Java 8→17)</i>"]
     end
 
+    P0 --> K0
     P1 --> K1
     P3 --> K3
     P6 --> K6
@@ -49,9 +51,9 @@ flowchart TB
     classDef baseline fill:#fff7d6,stroke:#b58900,color:#222
     classDef accelerator fill:#cfe3f7,stroke:#1f5f9e,color:#222
 
-    class P1,P3,P6,P7,P8 phase
+    class P0,P1,P3,P6,P7,P8 phase
     class P2,P4,P5 gap
-    class K1,K3,K6,K7,K8 kit
+    class K0,K1,K3,K6,K7,K8 kit
     class BASE baseline
     class ACC1 accelerator
 ```
@@ -62,7 +64,7 @@ flowchart TB
 
 ## What's in here (v6.0.0)
 
-A 7-plugin APM marketplace aligned to the [PLATFORM.md §6.1](https://github.com/DevExpGbb/agentic-sdlc-ref/blob/main/PLATFORM.md#61-layer-a--the-sdlc-ribbon) SDLC ribbon. Three categories per the taxonomy above:
+A 8-plugin APM marketplace aligned to the [PLATFORM.md §6.1](https://github.com/DevExpGbb/agentic-sdlc-ref/blob/main/PLATFORM.md#61-layer-a--the-sdlc-ribbon) SDLC ribbon. Three categories per the taxonomy above:
 
 **Foundation (cross-cutting)**
 | Plugin | What's inside |
@@ -72,6 +74,7 @@ A 7-plugin APM marketplace aligned to the [PLATFORM.md §6.1](https://github.com
 **Phase kits (one per covered SDLC phase)**
 | Plugin | SDLC phase | Source |
 |---|---|---|
+| [`provision-kit`](plugins/provision-kit/) | PROVISION (Day-0) | `provision-golden-path` skill (governed IssueOps front door → repo + OIDC + live URL) |
 | [`ideate-kit`](plugins/ideate-kit/) | IDEATE | `meeting-to-issue` skill |
 | [`code-kit`](plugins/code-kit/) | CODE | architect persona (design-intent guidance during authoring) |
 | [`review-kit`](plugins/review-kit/) | REVIEW | `panel-review` skill (pre-PR self-review by author) |
