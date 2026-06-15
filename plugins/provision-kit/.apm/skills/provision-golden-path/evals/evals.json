@@ -1,0 +1,49 @@
+{
+  "skill": "provision-golden-path",
+  "description": "Evals for the provision-golden-path dispatch + content. Content evals are run twice (with the skill loaded and without) to expose the value delta. Trigger evals validate the frontmatter description routes correctly; the val split is the ship gate (>= 0.5 on should-trigger, < 0.5 on should-not).",
+  "content_evals": [
+    {
+      "id": "c1-spin-up-orders",
+      "prompt": "Spin up an orders service for the storefront.",
+      "with_skill_expected": "Gathers name/region/owner/description, normalizes the name to zava-orders, shows a checkpoint of what will be created (repo, RG, OIDC, deploy) and that it provisions real Azure resources, then on approval files a `provision`-labeled issue in DevExpGbb/zava-agent-config, watches the run, verifies HTTP 200, and explains the guardrails.",
+      "without_skill_expected": "Hand-waves or proposes running raw az/gh commands by hand, with no governed front door, no OIDC story, and no live verification.",
+      "value_delta": "With the skill the request goes through the governed IssueOps path and is verified live; without it the agent improvises an ungoverned, secret-prone path."
+    },
+    {
+      "id": "c2-what-did-i-get",
+      "prompt": "What did provisioning actually give me?",
+      "with_skill_expected": "Reads references/golden-path-anatomy.md and cites concrete guardrails: repo from zava-app-template, secretless GitHub-to-Azure OIDC with subject repo:DevExpGbb/<name>:environment:dev, Owner RBAC scoped to rg-<name>, the dev environment, repo variables, the first deploy to Azure Container Apps, and inherited APM audit + secure-baseline.",
+      "without_skill_expected": "Guesses at a generic CI/CD setup; likely omits the secretless-OIDC subject binding and the RG-scoped blast-radius detail.",
+      "value_delta": "With the skill the explanation is grounded and accurate to the engine; without it it is vague and may misstate the security model."
+    },
+    {
+      "id": "c3-bad-name",
+      "prompt": "Provision a service called 'Orders Service!'",
+      "with_skill_expected": "Runs check-service-name.mjs, normalizes to zava-orders, explains the naming rule, and confirms before filing.",
+      "without_skill_expected": "May file or attempt a request with an invalid name and only discover the rejection after the workflow parses it.",
+      "value_delta": "With the skill invalid input is caught locally before any side effect; without it the failure surfaces late."
+    }
+  ],
+  "trigger_evals": [
+    { "query": "provision a new orders service", "should_trigger": true, "split": "train" },
+    { "query": "I need a new microservice for payments", "should_trigger": true, "split": "train" },
+    { "query": "scaffold me a repo with CI already set up", "should_trigger": true, "split": "train" },
+    { "query": "bootstrap a project that deploys to Azure", "should_trigger": true, "split": "train" },
+    { "query": "spin up a new service on the golden path", "should_trigger": true, "split": "train" },
+    { "query": "where do new services come from here?", "should_trigger": true, "split": "train" },
+    { "query": "get me a deployable repo with OIDC to Azure", "should_trigger": true, "split": "val" },
+    { "query": "set me up a new app from the template", "should_trigger": true, "split": "val" },
+    { "query": "create a new component for the storefront", "should_trigger": true, "split": "val" },
+    { "query": "start a new service with security and a deploy pipeline already wired", "should_trigger": true, "split": "val" },
+    { "query": "deploy my latest changes to production", "should_trigger": false, "split": "train" },
+    { "query": "fix the failing CI pipeline on zava-orders", "should_trigger": false, "split": "train" },
+    { "query": "create an Azure storage account", "should_trigger": false, "split": "train" },
+    { "query": "review my pull request", "should_trigger": false, "split": "train" },
+    { "query": "open an issue about a login bug", "should_trigger": false, "split": "train" },
+    { "query": "modernize this Express 4 app to Express 5", "should_trigger": false, "split": "train" },
+    { "query": "what's the status of my running container app?", "should_trigger": false, "split": "val" },
+    { "query": "rotate the secret on my service", "should_trigger": false, "split": "val" },
+    { "query": "summarize this incident postmortem", "should_trigger": false, "split": "val" },
+    { "query": "add a new endpoint to the existing orders API", "should_trigger": false, "split": "val" }
+  ]
+}

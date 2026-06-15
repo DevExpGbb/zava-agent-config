@@ -1,12 +1,12 @@
 name: zava-agent-config
-version: 6.1.2
+version: 6.2.0
 description: >-
-  Zava Engineering — central agent configuration marketplace. Seven plugins in
-  three tiers: cross-cutting baseline (secure-baseline) + five SDLC phase kits
-  (ideate / code / review / release / operate) + one accelerator (modernize-kit
-  for episodic framework migrations). Every Zava service repo composes the
-  baseline + selected kits via apm.yml; accelerators are pinned only when
-  running an X→Y migration.
+  Zava Engineering — central agent configuration marketplace. Eight plugins in
+  three tiers: cross-cutting baseline (secure-baseline) + six SDLC phase kits
+  (provision / ideate / code / review / release / operate) + one accelerator
+  (modernize-kit for episodic framework migrations). Every Zava service repo
+  composes the baseline + selected kits via apm.yml; accelerators are pinned
+  only when running an X→Y migration.
 author: Zava Engineering
 license: MIT
 keywords:
@@ -47,6 +47,10 @@ marketplace:
       source: ./plugins/secure-baseline
       category: Security
       description: Cross-cutting baseline — secure-coding instructions, docs style guide, security reviewer persona. Every Zava service pins this.
+    - name: provision-kit
+      source: ./plugins/provision-kit
+      category: Productivity
+      description: PROVISION stage (Day-0) — provision-golden-path skill. Files the governed request through the platform IssueOps front door, watches the run live, verifies the new repo + live URL, and explains the guardrails (template lineage, secretless OIDC, scoped RBAC, deploy pipeline).
     - name: ideate-kit
       source: ./plugins/ideate-kit
       category: Productivity

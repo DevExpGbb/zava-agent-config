@@ -1,0 +1,20 @@
+{
+  "name": "provision-kit",
+  "version": "6.2.0",
+  "description": "PROVISION phase (Day-0) of the Zava Agentic SDLC ribbon. provision-golden-path skill \u2014 gathers service details, files the governed request through the platform IssueOps front door, watches the run live, verifies the new repo and live URL, and explains the guardrails applied.",
+  "author": {
+    "name": "Zava Engineering"
+  },
+  "license": "MIT",
+  "repository": "https://github.com/DevExpGbb/zava-agent-config",
+  "homepage": "https://github.com/DevExpGbb/zava-agent-config/tree/main/plugins/provision-kit",
+  "keywords": [
+    "agentic-sdlc",
+    "apm",
+    "zava",
+    "provision",
+    "golden-path",
+    "issueops",
+    "oidc"
+  ]
+}
