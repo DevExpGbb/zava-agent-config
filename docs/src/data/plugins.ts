@@ -51,7 +51,6 @@ export const APM_QUICKSTART_URL =
 
 export type Tier = 'foundation' | 'phase' | 'accelerator';
 export type Phase =
-  | 'PROVISION'
   | 'IDEATE'
   | 'PLAN'
   | 'CODE'
@@ -86,18 +85,13 @@ export interface Plugin {
 }
 
 const PHASES_LIST: Phase[] = [
-  'PROVISION', 'IDEATE', 'PLAN', 'CODE', 'BUILD', 'TEST', 'REVIEW', 'RELEASE', 'OPERATE',
+  'IDEATE', 'PLAN', 'CODE', 'BUILD', 'TEST', 'REVIEW', 'RELEASE', 'OPERATE',
 ];
 
-export const PHASES: { id: Phase; label: string }[] = PHASES_LIST
-  // PROVISION is Day-0 — it has its own front door (the "Provision a service"
-  // form) and is deliberately NOT a cell in the SDLC ribbon, even though
-  // provision-kit is still classified under the PROVISION phase for the catalog.
-  .filter((p) => p !== 'PROVISION')
-  .map((p) => ({
-    id: p,
-    label: p[0] + p.slice(1).toLowerCase(),
-  }));
+export const PHASES: { id: Phase; label: string }[] = PHASES_LIST.map((p) => ({
+  id: p,
+  label: p[0] + p.slice(1).toLowerCase(),
+}));
 
 export const TIER_LABEL: Record<Tier, string> = {
   foundation: 'Foundation',
