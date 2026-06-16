@@ -41,7 +41,6 @@ export default defineConfig({
           label: 'SDLC phases',
           collapsed: false,
           items: [
-            { label: 'Provision', link: '/sdlc/provision/', badge: 'Day-0' },
             { label: 'Ideate', link: '/sdlc/ideate/' },
             { label: 'Plan',   link: '/sdlc/plan/' },
             { label: 'Code',   link: '/sdlc/code/' },
