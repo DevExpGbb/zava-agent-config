@@ -4,7 +4,7 @@
 # .claude-plugin/plugin.json; keep `version` in sync with the top-level
 # marketplace (zava-agent-config v6.1.0).
 name: secure-baseline
-version: 6.1.2
+version: 6.2.0
 description: >-
   Cross-cutting baseline for every Zava service: secure-coding instructions, docs style guide, and the security reviewer persona. Pinned by every service repo regardless of SDLC stage.
 author: Zava Engineering
