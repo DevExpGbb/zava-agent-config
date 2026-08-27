@@ -2,6 +2,11 @@ name: apm-audit
 
 # Reusable workflow shipped by zava-agent-config for downstream APM consumers.
 #
+# v6.3.0: pin the audit CLI via the new `apm-version` input (default 0.27.0).
+#     The apm-action default (0.14.0) predates the lockfile repo_url
+#     lowercasing landed in apm 0.27, so it flagged spurious ref-consistency
+#     mismatches and ran only a 2-check subset against modern lockfiles.
+#
 # v5.1.2: switched apm-action to setup-only + added --no-drift. Reason:
 # (1) `apm install` re-deploys files from upstream, OVERWRITING any in-PR
 #     tamper of a deployed managed file -- silently disabled hash checks
@@ -32,6 +37,15 @@ on:
         required: false
         type: boolean
         default: false
+      apm-version:
+        description: >-
+          APM CLI version the audit runs with. Must be recent enough to read the
+          consumer's apm.lock.yaml: apm >=0.27 lowercases repo_url in the
+          lockfile, so an older CLI (the apm-action default is 0.14.0) reports
+          spurious ref-consistency mismatches and runs only a reduced check set.
+        required: false
+        type: string
+        default: "0.27.0"
 
 permissions:
   contents: read
@@ -64,6 +78,7 @@ jobs:
         uses: microsoft/apm-action@v1
         with:
           setup-only: true
+          apm-version: ${{ inputs.apm-version }}
 
       - name: Detect repo policy override
         id: policy
