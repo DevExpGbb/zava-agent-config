@@ -8,6 +8,7 @@
   "license": "MIT",
   "repository": "https://github.com/DevExpGbb/zava-agent-config",
   "homepage": "https://github.com/DevExpGbb/zava-agent-config/tree/main/plugins/code-kit",
+  "agents": "./.apm/agents/",
   "keywords": [
     "agentic-sdlc",
     "apm",

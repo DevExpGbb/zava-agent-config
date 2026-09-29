@@ -8,6 +8,9 @@
   "license": "MIT",
   "repository": "https://github.com/DevExpGbb/zava-agent-config",
   "homepage": "https://github.com/DevExpGbb/zava-agent-config/tree/main/plugins/ideate-kit",
+  "skills": [
+    "./.apm/skills/"
+  ],
   "keywords": [
     "agentic-sdlc",
     "apm",
