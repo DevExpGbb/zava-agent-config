@@ -102,6 +102,8 @@ dependencies:
 
 After `apm install`, the service inherits the selected plugins' skills, instructions, and personas. Layered service-local instructions in the consumer's `.apm/` always win over inherited ones.
 
+For native Copilot plugin discovery from this source marketplace, `ideate-kit` and `code-kit` explicitly map their existing `.apm/skills/` and `.apm/agents/` directories in their legacy `.claude-plugin/plugin.json` manifests. Keep these source mappings when updating the manifests; APM-packed bundles use their own generated layout. No payload duplication or change to APM consumption is needed. See the [Copilot legacy component path reference](https://docs.github.com/en/copilot/reference/copilot-cli-reference/cli-plugin-reference#component-path-fields).
+
 ## Governance
 
 Org-wide policy lives at [`DevExpGbb/.github/apm-policy.yml`](https://github.com/DevExpGbb/.github/blob/main/apm-policy.yml) and is automatically inherited by every repo. CI gates (`apm audit --ci`) run on every PR via the reusable workflow at [`.github/workflows/apm-audit.yml`](.github/workflows/apm-audit.yml). A GHE org-level ruleset (configured on `zava-engineering`) makes the green check **required for merge**.
